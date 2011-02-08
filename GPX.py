@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-untitled.py
+GPX.py
 
 Created by Joel Carranza on 2011-02-06.
-Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
 import xml.etree.ElementTree as ElementTree
@@ -13,75 +12,90 @@ import sys
 import os
 import dateutil.parser
 
-NS = '{http://www.topografix.com/GPX/1/1}'
 
-def mapEl(obj,e,attr):
-  for k,fmt in attr.items():
-    child = e.find(NS+k)
-    if child is not None:
-      if fmt == 's':
-        setattr(obj,k,child.text)
-      elif fmt == 'd':
-        setattr(obj,k,dateutil.parser.parse(child.text))
-      elif fmt == 'i':
-        setattr(obj,k,int(child.text))
-      elif fmt == 'n':
-        setattr(obj,k,float(child.text))
-      else:
-        raise Error("Unknown format")
-    else:
-      setattr(obj,k,None) 
-
-def parseTrack(el):
-  trk = Path()
-  for wpel in el.findall("%strkseg/%strkpt" % (NS,NS)):
-    trk.points.append(parseWaypoint(wpel))
-  mapEl(trk,el,{
-    "name":"s",
-    "cmt":"s",
-    "desc":"s",
-    "src":"s",
-    "link":"s",
-  })
-  return trk
+class GPXParser:
+  NS = '{http://www.topografix.com/GPX/1/1}'
   
-def parseRoute(el):
-  trk = Path()
-  for wpel in el.findall("%srtept" % NS):
-    trk.points.append(parseWaypoint(wpel))
-  mapEl(trk,el,{
-    "name":"s",
-    "cmt":"s",
-    "desc":"s",
-    "src":"s",
-    "link":"s",
-  })
-  return trk
+  def __init__(self,gpx):
+    self.gpx = gpx
+    
+  def mapEl(self,obj,e,attr):
+    for k,fmt in attr.items():
+      child = e.find(self.NS+k)
+      if child is not None:
+        if fmt == 's':
+          setattr(obj,k,child.text)
+        elif fmt == 'd':
+          setattr(obj,k,dateutil.parser.parse(child.text))
+        elif fmt == 'i':
+          setattr(obj,k,int(child.text))
+        elif fmt == 'n':
+          setattr(obj,k,float(child.text))
+        else:
+          raise Error("Unknown format")
+      else:
+        setattr(obj,k,None) 
+  def parse(self,src):
+    root = ElementTree.parse(src).getroot()
+    # namespace should be either gpx1/0 or gpx1/1
+    self.NS = root.tag[0:-3]
+    for wptEl in root.findall("%swpt" % self.NS):
+      self.gpx.waypoints.append(self.parseWaypoint(wptEl))
+    for rteEl in root.findall("%srte" % self.NS):
+      self.gpx.routes.append(self.parseRoute(trkEl))
+    for trkEl in root.findall("%strk" % self.NS):
+      self.gpx.tracks.append(self.parseTrack(trkEl))
+    
+  def parseTrack(self,el):
+    trk = Path()
+    for wpel in el.findall("%strkseg/%strkpt" % (self.NS,self.NS)):
+      trk.points.append(self.parseWaypoint(wpel))
+    self.mapEl(trk,el,{
+      "name":"s",
+      "cmt":"s",
+      "desc":"s",
+      "src":"s",
+      "link":"s",
+    })
+    return trk
+  
+  def parseRoute(self,el):
+    trk = Path()
+    for wpel in el.findall("%srtept" % self.NS):
+      trk.points.append(self.parseWaypoint(wpel))
+    self.mapEl(trk,el,{
+      "name":"s",
+      "cmt":"s",
+      "desc":"s",
+      "src":"s",
+      "link":"s",
+    })
+    return trk
 
 
-def parseWaypoint(e):
-  pt = Waypoint()
-  pt.lat = float(e.attrib['lat'])
-  pt.lon = float(e.attrib['lon'])
-  mapEl(pt,e,{
-    "ele":"n",
-    "time":"d",
-    "magvar":"d",
-    "geoidheight":"d",
-    "name":"s",
-    "cmt":"s",
-    "desc":"s",
-    "src":"s",
-    "link":"s",
-    "sym":"s",
-    "type":"s",
-    "fix":"s",
-    "sat":"i",
-    "hdop":"d",
-    "vdop":"d",
-    "pdop":"d",
-  })
-  return pt
+  def parseWaypoint(self,e):
+    pt = Waypoint()
+    pt.lat = float(e.attrib['lat'])
+    pt.lon = float(e.attrib['lon'])
+    self.mapEl(pt,e,{
+      "ele":"n",
+      "time":"d",
+      "magvar":"d",
+      "geoidheight":"d",
+      "name":"s",
+      "cmt":"s",
+      "desc":"s",
+      "src":"s",
+      "link":"s",
+      "sym":"s",
+      "type":"s",
+      "fix":"s",
+      "sat":"i",
+      "hdop":"d",
+      "vdop":"d",
+      "pdop":"d",
+    })
+    return pt
 
 class GPX:
   
@@ -91,14 +105,8 @@ class GPX:
     self.routes = []
   
   def load(self,src):
-    root = ElementTree.parse(src).getroot()
-    for wptEl in root.findall("%swpt" % NS):
-      self.waypoints.append(parseWaypoint(wptEl))
-    for rteEl in root.findall("%srte" % NS):
-      self.routes.append(parseRoute(trkEl))
-    for trkEl in root.findall("%strk" % NS):
-      self.tracks.append(parseTrack(trkEl))
-  
+    parser = GPXParser(self)
+    parser.parse(src)
   
   def toxml(self):
     root = Element("gpx",{"xmlns":"http://www.topografix.com/GPX/1/1"})
@@ -107,7 +115,9 @@ class GPX:
     for route in self.routes:
       root.append(route.toxml("rte"))    
     for track in self.tracks:
-      root.append(track.toxml("trk"))
+      trk = Element("trk")
+      trk.append(track.toxml("trkseg"))
+      root.append(trk)
     return root
     
   def write(self,file):
@@ -170,13 +180,21 @@ class Waypoint:
      self.lon = lon
      
   def toxml(self,name):
+    "Creates an XML element with specified name which represents this Waypoint"
     e = Element(name,{"lat":str(self.lat),"lon":str(self.lon)})
     return e
 
-def main():
-  gpx = GPX()
-  gpx.load("data/track.gpx")
-
 if __name__ == '__main__':
-  main()
+  import sys
+  for fn in sys.argv[1:]:
+    gpx = GPX()
+    gpx.load(fn)
+    print fn
+    print "------------"
+    print "%d waypoints" % len(gpx.waypoints)
+    print "%d tracks" % len(gpx.tracks)
+    for t in gpx.tracks:
+      print t.name
+      print t.bounds()
+      print t.timespan()
 

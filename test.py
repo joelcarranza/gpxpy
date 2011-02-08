@@ -58,6 +58,9 @@ class WriteTest(unittest.TestCase):
   def testWrite(self):
     g = GPX()
     g.waypoints.append(Waypoint(47.644548,-122.326897))
+    p = Path()
+    p.points.append(Waypoint(47.644548,-122.326897))
+    g.tracks.append(p)
     s = StringIO.StringIO()
     g.write(s)
     print s.getvalue()
