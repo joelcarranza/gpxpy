@@ -42,14 +42,17 @@ class GPXParser:
     for wptEl in root.findall("%swpt" % self.NS):
       self.gpx.waypoints.append(self.parseWaypoint(wptEl))
     for rteEl in root.findall("%srte" % self.NS):
-      self.gpx.routes.append(self.parseRoute(trkEl))
+      self.gpx.routes.append(self.parseRoute(rteEl))
     for trkEl in root.findall("%strk" % self.NS):
       self.gpx.tracks.append(self.parseTrack(trkEl))
     
   def parseTrack(self,el):
-    trk = Path()
-    for wpel in el.findall("%strkseg/%strkpt" % (self.NS,self.NS)):
-      trk.points.append(self.parseWaypoint(wpel))
+    trk = Track()
+    for seg in el.findall("%strkseg" % self.NS):
+      p = Path()
+      for wpel in seg.findall("%strkpt" % self.NS):
+        p.points.append(self.parseWaypoint(wpel))
+      trk.segments.append(p)
     self.mapEl(trk,el,{
       "name":"s",
       "cmt":"s",
@@ -60,7 +63,7 @@ class GPXParser:
     return trk
   
   def parseRoute(self,el):
-    trk = Path()
+    trk = Route()
     for wpel in el.findall("%srtept" % self.NS):
       trk.points.append(self.parseWaypoint(wpel))
     self.mapEl(trk,el,{
@@ -113,23 +116,22 @@ class GPX:
     for wpt in self.waypoints:
       root.append(wpt.toxml("wpt"))
     for route in self.routes:
-      root.append(route.toxml("rte"))    
+      root.append(route.toxml("rte","rtept"))    
     for track in self.tracks:
       trk = Element("trk")
-      trk.append(track.toxml("trkseg"))
+      for seg in track.segments:
+        trk.append(seg.toxml("trgseg","trkpt"))
       root.append(trk)
     return root
     
   def write(self,file):
+    # note that we would like for this pretty-print possibly
     ElementTree.ElementTree(self.toxml()).write(file)
   
+  def __str__(self):
+    return "GPX{waypoints=%d,tracks=%d,routes=%d}" % (len(self.waypoints),len(self.tracks),len(self.routes))
 class Path:
   points = None
-  name = None
-  cmt = None
-  src = None
-  desc = None
-  link = None
   
   def __init__(self):
     self.points = []
@@ -149,11 +151,42 @@ class Path:
     else:
       return None
   
-  def toxml(self,name):
+  def toxml(self,name,ptname):
     e = Element(name)
     for p in self.points:
-      e.append(p.toxml(name+"pt"))
+      e.append(p.toxml(ptname))
     return e
+    
+  def __str__(self):
+    return "Path{points=%d}" % len(self.points)
+
+class Route(Path):
+  name = None
+  cmt = None
+  src = None
+  desc = None
+  link = None
+  
+class Track:
+  name = None
+  cmt = None
+  src = None
+  desc = None
+  link = None
+  segments = None
+  
+  def __init__(self):
+    self.segments = []
+  
+  def join(self):
+    "Join all segments together into a single segment"
+    for s in self.segments[1:]:
+      self.segments[0].points.extend(s.points)
+    self.segments[1:] = []
+    
+  def __str__(self):
+    return "Track{segments=%d}" % len(self.segments)
+  
 
 class Waypoint:
   lat = None
@@ -183,6 +216,9 @@ class Waypoint:
     "Creates an XML element with specified name which represents this Waypoint"
     e = Element(name,{"lat":str(self.lat),"lon":str(self.lon)})
     return e
+    
+  def __str__(self):
+    return "Waypoint{%d,%d}" % (self.lat,self.lon)
 
 if __name__ == '__main__':
   import sys
@@ -195,6 +231,7 @@ if __name__ == '__main__':
     print "%d tracks" % len(gpx.tracks)
     for t in gpx.tracks:
       print t.name
-      print t.bounds()
-      print t.timespan()
+      for s in t.segments:
+        print s.bounds()
+        print s.timespan()
 

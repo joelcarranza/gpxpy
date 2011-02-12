@@ -2,6 +2,8 @@
 
 from GPX import GPX
 from GPX import Path
+from GPX import Track
+from GPX import Route
 from GPX import Waypoint
 import unittest
 import StringIO
@@ -42,15 +44,15 @@ class ParseTest(unittest.TestCase):
   
   def testSimpleParse(self):
     self.assertEquals(len(self.gpx.tracks),1)
-    self.assertEquals(len(self.gpx.tracks[0].points),3)
-    self.assertEquals(self.gpx.tracks[0].points[0].lat,47.644548)
-    self.assertEquals(self.gpx.tracks[0].points[0].lon,-122.326897)
+    self.assertEquals(len(self.gpx.tracks[0].segments[0].points),3)
+    self.assertEquals(self.gpx.tracks[0].segments[0].points[0].lat,47.644548)
+    self.assertEquals(self.gpx.tracks[0].segments[0].points[0].lon,-122.326897)
   
   def testTimestamp(self):
-    assert self.gpx.tracks[0].timespan() is not None
+    assert self.gpx.tracks[0].segments[0].timespan() is not None
   
   def testBounds(self):
-    assert self.gpx.tracks[0].bounds() is not None
+    assert self.gpx.tracks[0].segments[0].bounds() is not None
     
 
 
@@ -60,7 +62,9 @@ class WriteTest(unittest.TestCase):
     g.waypoints.append(Waypoint(47.644548,-122.326897))
     p = Path()
     p.points.append(Waypoint(47.644548,-122.326897))
-    g.tracks.append(p)
+    t = Track()
+    t.segments.append(p)
+    g.tracks.append(t)
     s = StringIO.StringIO()
     g.write(s)
     print s.getvalue()
