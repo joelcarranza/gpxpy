@@ -15,7 +15,7 @@ GPxpy.py is library - if run standalone summarizes a passed in file.
 Utilities:
 Filter trackpoints by time
 Prune wpts/track/route by type,specific name
-Prune very shirt tracks
+Prune very short tracks
 Split according to time/distance
 Split around specified pt 
 Simplify , basic and topologically 
@@ -43,5 +43,8 @@ KML Reference
 http://code.google.com/apis/kml/documentation/kmlreference.html#feature
 
 TOD0:
-  - track can contain multiple trkseg, not supported right now
+  - outputted file not rendering in Google Earth
+  - implemented __getitem__ but not __setitem__
+  - distance includes elevation
+  - 
   
