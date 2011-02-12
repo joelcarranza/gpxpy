@@ -120,8 +120,11 @@ class GPX:
       root.append(route.toxml("rte","rtept"))    
     for track in self.tracks:
       trk = Element("trk")
+      name = Element("name")
+      name.text = track.name
+      trk.append(name)
       for seg in track:
-        trk.append(seg.toxml("trgseg","trkpt"))
+        trk.append(seg.toxml("trkseg","trkpt"))
       root.append(trk)
     return root
     
