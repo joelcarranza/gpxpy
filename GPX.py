@@ -14,6 +14,82 @@ import os
 import dateutil.parser
 import math
 
+_route_scheme = _track_scheme = dict(name="s",
+  cmt="s",
+  desc="s",
+  src="s",
+  link="s")
+
+_wpt_scheme = dict(ele="n",
+  time="d",
+  magvar="n",
+  geoidheight="n",
+  name="s",
+  cmt="s",
+  desc="s",
+  src="s",
+  link="s",
+  sym="s",
+#  type="s",
+  fix="s",
+  sat="i",
+  hdop="n",
+  vdop="n",
+  pdop="n")
+
+NS_1_0 = '{http://www.topografix.com/GPX/1/0}'
+NS = NS_1_1 = '{http://www.topografix.com/GPX/1/1}'
+
+class GPXWriter:
+  creator = "GPX.py"
+  
+  def text(self,name,value):
+    e = Element(name)
+    e.text = value
+    return e
+    
+  def textEl(self,obj,e,attr):
+    for p,fmt in attr.items():
+      value = getattr(obj,p)
+      if value is not None:
+        c = Element(p)
+        if fmt == 'd':
+          c.text = value.isoformat()
+        else:
+          c.text = str(value)
+        e.append(c)
+    
+  def gpx(self,gpx):
+    root = Element("gpx",xmlns=NS,version="1.1",creator=self.creator)
+    for wpt in gpx.waypoints:
+      root.append(self.wpt(wpt,"wpt"))
+    for route in gpx.routes:
+      p = self.path(route,"rte","rtept")
+      self.textEl(trk,el,_route_scheme)
+      root.append(p) 
+    for track in gpx.tracks:
+      trk = Element("trk")
+      self.textEl(track,trk,_track_scheme)
+      for seg in track:
+        trk.append(self.path(seg,"trkseg","trkpt"))
+      root.append(trk)
+    return root
+    
+  def wpt(self,wpt,name):
+   "Creates an XML element with specified name which represents this Waypoint"
+   e = Element(name,{"lat":str(wpt.lat),"lon":str(wpt.lon)})
+   self.textEl(wpt,e,_wpt_scheme)
+   return e
+   
+  def path(self,p,name,ptname):
+    e = Element(name)
+    for p in p._wpt:
+      e.append(self.wpt(p,ptname))
+    return e
+    
+  def write(self,gpx,file):
+     ElementTree.ElementTree(self.gpx(gpx)).write(file)
+
 class GPXParser:
   NS = '{http://www.topografix.com/GPX/1/1}'
   
@@ -54,26 +130,14 @@ class GPXParser:
       for wpel in seg.findall("%strkpt" % self.NS):
         p.append(self.parseWaypoint(wpel))
       trk.append(p)
-    self.mapEl(trk,el,{
-      "name":"s",
-      "cmt":"s",
-      "desc":"s",
-      "src":"s",
-      "link":"s",
-    })
+    self.mapEl(trk,el,_track_scheme)
     return trk
   
   def parseRoute(self,el):
     trk = Route()
     for wpel in el.findall("%srtept" % self.NS):
       trk.points.append(self.parseWaypoint(wpel))
-    self.mapEl(trk,el,{
-      "name":"s",
-      "cmt":"s",
-      "desc":"s",
-      "src":"s",
-      "link":"s",
-    })
+    self.mapEl(trk,el,_route_scheme)
     return trk
 
 
@@ -81,24 +145,7 @@ class GPXParser:
     pt = Waypoint()
     pt.lat = float(e.attrib['lat'])
     pt.lon = float(e.attrib['lon'])
-    self.mapEl(pt,e,{
-      "ele":"n",
-      "time":"d",
-      "magvar":"d",
-      "geoidheight":"d",
-      "name":"s",
-      "cmt":"s",
-      "desc":"s",
-      "src":"s",
-      "link":"s",
-      "sym":"s",
-      "type":"s",
-      "fix":"s",
-      "sat":"i",
-      "hdop":"d",
-      "vdop":"d",
-      "pdop":"d",
-    })
+    self.mapEl(pt,e,_wpt_scheme)
     return pt
 
 class GPX:
@@ -111,6 +158,21 @@ class GPX:
   def load(self,src):
     parser = GPXParser(self)
     parser.parse(src)
+  
+  def newTrack(self,**kwargs):
+    t = Track(**kwargs)
+    self.tracks.add(t)
+    return t
+
+  def newWaypoint(self,**kwargs):
+    w = Waypoint(**kwargs)
+    self.waypoints.add(w)
+    return w
+    
+  def newRoute(self,**kwargs):
+    r = Route(**kwargs)
+    self.routes.add(w)
+    return r
   
   def toxml(self):
     root = Element("gpx",{"xmlns":"http://www.topografix.com/GPX/1/1"})
@@ -130,7 +192,7 @@ class GPX:
     
   def write(self,file):
     # note that we would like for this pretty-print possibly
-    ElementTree.ElementTree(self.toxml()).write(file)
+    GPXWriter().write(self,file)
   
   def __str__(self):
     return "GPX{waypoints=%d,tracks=%d,routes=%d}" % (len(self.waypoints),len(self.tracks),len(self.routes))
@@ -139,6 +201,8 @@ class Path:
   """
   Ordered list of points
   """
+  
+  
   _wpt = None
   
   def __init__(self):
@@ -147,7 +211,12 @@ class Path:
   def points(self):
     "Return a list of waypoints in the path"
     return self._wpt
-    
+  
+  def newWaypoint(self,**kwargs):
+    w = Waypoint(**kwargs)
+    self._wpt.append(w)
+    return w
+  
   def append(self,wpt):
     "Add a new waypoint to the end of the path"
     self._wpt.append(wpt)
@@ -208,17 +277,25 @@ class Route(Path):
   """
   n ordered list of waypoints representing a series of turn points leading to a destination.
   """
+  
   name = None
   cmt = None
   src = None
   desc = None
   link = None
   
+  def __init__(self,**kwargs):
+    for k, v in kwargs.iteritems():
+       if k not in _route_scheme:
+           raise TypeError("Invalid keyword argument %s" % k)
+       setattr(self, k, v)
+  
 class Track:
   """
   Represents an ordered list of track segments (paths) which
   taken together represent a (potentially complex) path
   """
+          
   name = None
   cmt = None
   src = None
@@ -226,14 +303,23 @@ class Track:
   link = None
   _s = None
   
-  def __init__(self):
+  def __init__(self,**kwargs):
     self._s = []
+    for k, v in kwargs.iteritems():
+       if k not in _track_scheme:
+           raise TypeError("Invalid keyword argument %s" % k)
+       setattr(self, k, v)
   
   def points(self):
     "Returns an interator over all waypoints in track"
     for s in self._s:
       for p in s:
         yield p
+  
+  def newSegment(self,**kwargs):
+    p = Path(**kwargs)
+    self._s.append(p)
+    return p
   
   def join(self):
     "Join all segments together into a single segment"
@@ -271,6 +357,7 @@ class Waypoint:
   See: http://www.topografix.com/GPX/1/1/#type_wptType
   """
   
+  
   lat = None
   lon = None
   ele = None
@@ -288,17 +375,16 @@ class Waypoint:
   sat = None
   hdop = None
   vdop = None
-  pdom = None
+  pdop = None
   
-  def __init__(self,lat=None,lon=None):
+  def __init__(self,lat=None,lon=None,**kwargs):
      self.lat = lat
      self.lon = lon
-     
-  def toxml(self,name):
-    "Creates an XML element with specified name which represents this Waypoint"
-    e = Element(name,{"lat":str(self.lat),"lon":str(self.lon)})
-    return e
-    
+     for k, v in kwargs.iteritems():
+       if k not in _wpt_scheme:
+           raise TypeError("Invalid keyword argument %s" % k)
+       setattr(self, k, v)
+   
   def __str__(self):
     return "Waypoint{%d,%d}" % (self.lat,self.lon)
   
