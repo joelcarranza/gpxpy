@@ -8,6 +8,7 @@ Created by Joel Carranza on 2011-02-06.
 
 import xml.etree.ElementTree as ElementTree
 from xml.etree.ElementTree import Element
+from xml.etree.ElementTree import SubElement
 import sys
 import os
 # this is going to fail on 2.5???
@@ -64,15 +65,14 @@ class GPXWriter:
     for wpt in gpx.waypoints:
       root.append(self.wpt(wpt,"wpt"))
     for route in gpx.routes:
-      p = self.path(route,"rte","rtept")
-      self.textEl(trk,el,_route_scheme)
-      root.append(p) 
+      el = self.path(route,"rte","rtept")
+      self.textEl(route,el,_route_scheme)
+      root.append(el) 
     for track in gpx.tracks:
-      trk = Element("trk")
-      self.textEl(track,trk,_track_scheme)
+      el = SubElement(root,"trk")
+      self.textEl(track,el,_track_scheme)
       for seg in track:
-        trk.append(self.path(seg,"trkseg","trkpt"))
-      root.append(trk)
+        el.append(self.path(seg,"trkseg","trkpt"))
     return root
     
   def wpt(self,wpt,name):
@@ -133,11 +133,11 @@ class GPXParser:
     return trk
   
   def parseRoute(self,el):
-    trk = Route()
+    r = Route()
     for wpel in el.findall("{%s}rtept" % self.NS):
-      trk.points.append(self.parseWaypoint(wpel))
-    self.mapEl(trk,el,_route_scheme)
-    return trk
+      r.append(self.parseWaypoint(wpel))
+    self.mapEl(r,el,_route_scheme)
+    return r
 
 
   def parseWaypoint(self,e):
@@ -283,7 +283,8 @@ class Route(Path):
   desc = None
   link = None
   
-  def __init__(self,**kwargs):
+  def __init__(self,pts=[],**kwargs):
+    Path.__init__(self,pts)
     for k, v in kwargs.iteritems():
        if k not in _route_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
