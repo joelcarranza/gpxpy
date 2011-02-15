@@ -8,16 +8,11 @@ Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
 import sys
-import getopt
+import argparse
 import re
 import datetime;
 from GPX import *
-
-help_message = '''
-The help message goes here.
-'''
 import pytz
-tz = pytz.utc
 
 def parseInt(s):
   if s:
@@ -25,7 +20,7 @@ def parseInt(s):
   else:
     return None
     
-def parseDate(s,begin=True):
+def parseDate(s,tz,begin=True):
   m = re.match('(\d+)-(\d+)-(\d+)(?:T(\d+):(\d+)(?::(\d+))?)?',s)
   if m:
     year,month,day,h,m,s = map(parseInt,m.groups())
@@ -35,16 +30,17 @@ def parseDate(s,begin=True):
       m = 0 if begin else 59
     if s is None:
       s = 0 if begin else 59
-    return datetime.datetime(year,month,day,h,m,s,0,tz)
+    ms = s = 0 if begin else 59 # ms must be between 1..60 ??
+    return datetime.datetime(year,month,day,h,m,s,ms,tz)
   else:
     raise Exception("Invalid date: "+s)
 
-def parseDateRange(range):
+def parseDateRange(range,tz):
   p = range.split(',')
   if len(p) == 1:
     p = (p[0],p[0])
-  return (parseDate(p[0],True),parseDate(p[1],False))
-  
+  return (parseDate(p[0],tz,True),parseDate(p[1],tz,False))
+
 def trimSegment(seg,dateRange):
   pts = []
   for p in seg:
@@ -53,45 +49,22 @@ def trimSegment(seg,dateRange):
       pts.append(p)
   return Path(pts) if len(pts) > 0 else None
 
-class Usage(Exception):
-  def __init__(self, msg):
-    self.msg = msg
-
-
-def main(argv=None):
-  if argv is None:
-    argv = sys.argv
-  try:
-    try:
-      opts, args = getopt.getopt(argv[1:], "ho:v", ["help", "output="])
-    except getopt.error, msg:
-      raise Usage(msg)
-  
-    # option processing
-    for option, value in opts:
-      if option == "-v":
-        verbose = True
-      if option in ("-h", "--help"):
-        raise Usage(help_message)
-      if option in ("-o", "--output"):
-        output = value
-      
-    fn,dr = args
-    dateRange = parseDateRange(dr)
+def main(input,output,dateRangeStr,tz):
+    dateRange = parseDateRange(dateRangeStr,tz)
+    
     gpx = GPX()
-    gpx.load(fn)
+    gpx.load(input)
     
     for trk in gpx.tracks:
       s = map(lambda seg:trimSegment(seg,dateRange),trk)
       s = filter(lambda x: x is not None,s)
-      print s
-
-  
-  except Usage, err:
-    print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)
-    print >> sys.stderr, "\t for help use --help"
-    return 2
-
+    gpx.write(output)
 
 if __name__ == "__main__":
-  sys.exit(main())
+  parser = argparse.ArgumentParser(description='Trim GPX file to time')
+  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
+  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
+  parser.add_argument('-tz', type=pytz.timezone,default=pytz.utc)
+  parser.add_argument('dateRange')
+  args = parser.parse_args()
+  main(args.i,args.o,args.dateRange,args.tz)
