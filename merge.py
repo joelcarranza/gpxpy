@@ -12,9 +12,10 @@ import getopt
 import StringIO
 from GPX import *
 
+# TODO: support loading only wpt/tracks/routes
 
 help_message = '''
-The help message goes here.
+Merges two or more GPX files into a single file
 '''
 
 def merge(src,dest):
@@ -39,11 +40,11 @@ def main(argv=None):
   if argv is None:
     argv = sys.argv
   try:
+    output = None
     try:
       opts, args = getopt.getopt(argv[1:], "ho:v", ["help", "output="])
     except getopt.error, msg:
       raise Usage(msg)
-  
     # option processing
     for option, value in opts:
       if option == "-v":
@@ -57,8 +58,8 @@ def main(argv=None):
     for a in args:
       src = GPX()
       src.load(a)
-    merge(src,dest)
-    write(dest)
+      merge(src,dest)
+    write(dest,output)
   
   except Usage, err:
     print >> sys.stderr, sys.argv[0].split("/")[-1] + ": " + str(err.msg)

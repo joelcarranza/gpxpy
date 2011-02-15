@@ -1,5 +1,10 @@
 GPXPY - a set of tools for dealing with GPX files
 
+Dependencies
+- argparse
+- timezone?
+- iso lib?
+
 Goal is produce a basic library along with a number of simple command line utilities with the goal of creating "Maps" - i.e KML files or images or whatever. GPX files are the basis of the work, use gpsbable to get whatever into GPX format if you are feeling saucy.
 
 GPXPY
@@ -42,9 +47,30 @@ KML Genereration
 KML Reference
 http://code.google.com/apis/kml/documentation/kmlreference.html#feature
 
+General Command line utilities
+process -i in.gpx -o out.gpx 
+if -i or -o does not exist then read from stdin stdout
+Use argparse (included in python 2.7 but can download instead) (?)
+
+Implementation plan:
+merge
+  - track mode (single segment/single track/none)
+trim (by timestamp)
+  - perhaps we should call this filter (include positioning?)
+split (by time period days/hours)
+  split 1d -tz America/Pactific
+split (distance)
+supplement
+stops - generate stops
+
+
 TOD0:
+  - pretty print XML 
   - outputted file not rendering in Google Earth
-  - implemented __getitem__ but not __setitem__
+  - implemented __getitem__ but not __setitem__ (OK)
   - distance includes elevation
+
+v2
+  - parse using SAX events - allow parsing to provide filters which avoid construction of whole parts of tree altogether (only interested in tracks/wpt/routes etc) - Filter by date, etc... 
+  - write using direct XML writes
   - 
-  

@@ -37,8 +37,8 @@ _wpt_scheme = dict(ele="n",
   vdop="n",
   pdop="n")
 
-NS_1_0 = '{http://www.topografix.com/GPX/1/0}'
-NS = NS_1_1 = '{http://www.topografix.com/GPX/1/1}'
+NS_1_0 = 'http://www.topografix.com/GPX/1/0'
+NS = NS_1_1 = 'http://www.topografix.com/GPX/1/1'
 
 class GPXWriter:
   creator = "GPX.py"
@@ -91,14 +91,13 @@ class GPXWriter:
      ElementTree.ElementTree(self.gpx(gpx)).write(file)
 
 class GPXParser:
-  NS = '{http://www.topografix.com/GPX/1/1}'
   
   def __init__(self,gpx):
     self.gpx = gpx
     
   def mapEl(self,obj,e,attr):
     for k,fmt in attr.items():
-      child = e.find(self.NS+k)
+      child = e.find("{%s}%s" % (self.NS,k))
       if child is not None:
         if fmt == 's':
           setattr(obj,k,child.text)
@@ -115,19 +114,19 @@ class GPXParser:
   def parse(self,src):
     root = ElementTree.parse(src).getroot()
     # namespace should be either gpx1/0 or gpx1/1
-    self.NS = root.tag[0:-3]
-    for wptEl in root.findall("%swpt" % self.NS):
+    self.NS = root.tag[1:-4]
+    for wptEl in root.findall("{%s}swpt" % self.NS):
       self.gpx.waypoints.append(self.parseWaypoint(wptEl))
-    for rteEl in root.findall("%srte" % self.NS):
+    for rteEl in root.findall("{%s}rte" % self.NS):
       self.gpx.routes.append(self.parseRoute(rteEl))
-    for trkEl in root.findall("%strk" % self.NS):
+    for trkEl in root.findall("{%s}trk" % self.NS):
       self.gpx.tracks.append(self.parseTrack(trkEl))
     
   def parseTrack(self,el):
     trk = Track()
-    for seg in el.findall("%strkseg" % self.NS):
+    for seg in el.findall("{%s}trkseg" % self.NS):
       p = Path()
-      for wpel in seg.findall("%strkpt" % self.NS):
+      for wpel in seg.findall("{%s}trkpt" % self.NS):
         p.append(self.parseWaypoint(wpel))
       trk.append(p)
     self.mapEl(trk,el,_track_scheme)
@@ -135,7 +134,7 @@ class GPXParser:
   
   def parseRoute(self,el):
     trk = Route()
-    for wpel in el.findall("%srtept" % self.NS):
+    for wpel in el.findall("{%s}rtept" % self.NS):
       trk.points.append(self.parseWaypoint(wpel))
     self.mapEl(trk,el,_route_scheme)
     return trk
@@ -205,8 +204,8 @@ class Path:
   
   _wpt = None
   
-  def __init__(self):
-    self._wpt = []
+  def __init__(self,pts=[]):
+    self._wpt = pts
   
   def points(self):
     "Return a list of waypoints in the path"
