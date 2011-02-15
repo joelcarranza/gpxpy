@@ -47,7 +47,12 @@ def trimSegment(seg,dateRange):
     t = p.time
     if t and dateRange[0] <= t and t <= dateRange[1]:
       pts.append(p)
-  return Path(pts) if len(pts) > 0 else None
+  if len(pts) > 0:
+    path = Path()
+    path.extend(pts)
+    return path
+  else:
+    return None
 
 def main(input,output,dateRangeStr,tz):
     dateRange = parseDateRange(dateRangeStr,tz)

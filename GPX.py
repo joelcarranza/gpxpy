@@ -204,8 +204,8 @@ class Path:
   
   _wpt = None
   
-  def __init__(self,pts=[]):
-    self._wpt = pts
+  def __init__(self):
+    self._wpt = []
   
   def points(self):
     "Return a list of waypoints in the path"
@@ -283,8 +283,8 @@ class Route(Path):
   desc = None
   link = None
   
-  def __init__(self,pts=[],**kwargs):
-    Path.__init__(self,pts)
+  def __init__(self,**kwargs):
+    Path.__init__(self)
     for k, v in kwargs.iteritems():
        if k not in _route_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
@@ -413,7 +413,6 @@ if __name__ == '__main__':
     print "%d tracks" % len(gpx.tracks)
     for t in gpx.tracks:
       print t.name
-      for s in t.segments:
-        print s.bounds()
-        print s.timespan()
+      for s in t:
+        print len(s)
 
