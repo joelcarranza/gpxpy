@@ -58,17 +58,25 @@ def main(input,output,dateRangeStr,tz):
     dateRange = parseDateRange(dateRangeStr,tz)
     
     gpx = GPX()
-    gpx.load(input)
+    for f in input:
+      gpx.load(f)
     
+    newtracks = []
     for trk in gpx.tracks:
       s = map(lambda seg:trimSegment(seg,dateRange),trk)
       s = filter(lambda x: x is not None,s)
+      if len(s) > 0:
+        t = Track()
+        t.name = trk.name
+        t.extend(s)
+        newtracks.append(t)
+    gpx.tracks = newtracks
     gpx.write(output)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Trim GPX file to time')
   parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
-  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
+  parser.add_argument('-o', metavar='file',nargs="+",type=argparse.FileType('w'),default=sys.stdout)
   parser.add_argument('-tz', type=pytz.timezone,default=pytz.utc)
   parser.add_argument('dateRange')
   args = parser.parse_args()

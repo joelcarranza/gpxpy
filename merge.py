@@ -11,16 +11,18 @@ import argparse
 from GPX import *
 
 # TODO: support loading only wpt/tracks/routes
+# TODO: support merging by 
 
-def main(files,output):
+def merge(files):
   gpx = GPX()
   for a in files:
     gpx.load(a)
-  gpx.write(output)
+  return gpx
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trim GPX file to time')
     parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
     parser.add_argument('files', metavar='file',nargs="+",type=argparse.FileType('r'),default=sys.stdin)
     args = parser.parse_args()
-    main(args.files,args.o);
+    gpx = merge(args.files);
+    gpx.write(args.o)

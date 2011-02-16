@@ -66,6 +66,7 @@ stops - generate stops
 
 TOD0:
   - pretty print XML 
+  - technically XML schema has elements for route/track/wpt as sequence and thus they must be ordered - pah!
   - outputted file not rendering in Google Earth
   - implemented __getitem__ but not __setitem__ (OK)
   - distance includes elevation
@@ -73,4 +74,3 @@ TOD0:
 v2
   - parse using SAX events - allow parsing to provide filters which avoid construction of whole parts of tree altogether (only interested in tracks/wpt/routes etc) - Filter by date, etc... 
   - write using direct XML writes
-  - 

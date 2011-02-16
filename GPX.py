@@ -31,7 +31,7 @@ _wpt_scheme = dict(ele="n",
   src="s",
   link="s",
   sym="s",
-#  type="s",
+  type="s",
   fix="s",
   sat="i",
   hdop="n",
@@ -42,6 +42,9 @@ NS_1_0 = 'http://www.topografix.com/GPX/1/0'
 NS = NS_1_1 = 'http://www.topografix.com/GPX/1/1'
 
 class GPXWriter:
+  """
+  Writes a GPX file to 
+  """
   creator = "GPX.py"
   
   def text(self,name,value):
@@ -91,10 +94,12 @@ class GPXWriter:
      ElementTree.ElementTree(self.gpx(gpx)).write(file)
 
 class GPXParser:
-  
+  """
+  DOM Parsing tool which constructs a 
+  """
   def __init__(self,gpx):
     self.gpx = gpx
-    
+  
   def mapEl(self,obj,e,attr):
     for k,fmt in attr.items():
       child = e.find("{%s}%s" % (self.NS,k))
@@ -111,6 +116,7 @@ class GPXParser:
           raise Error("Unknown format")
       else:
         setattr(obj,k,None) 
+  
   def parse(self,src):
     root = ElementTree.parse(src).getroot()
     # namespace should be either gpx1/0 or gpx1/1
@@ -148,7 +154,13 @@ class GPXParser:
     return pt
 
 class GPX:
-  
+  """
+  Model of a GPX file. Gpx file contains one or more of
+  the following types
+  tracks
+  waypoints
+  routes
+  """
   def __init__(self):
     self.tracks = []
     self.waypoints = []
@@ -160,35 +172,19 @@ class GPX:
   
   def newTrack(self,**kwargs):
     t = Track(**kwargs)
-    self.tracks.add(t)
+    self.tracks.append(t)
     return t
 
   def newWaypoint(self,**kwargs):
     w = Waypoint(**kwargs)
-    self.waypoints.add(w)
+    self.waypoints.append(w)
     return w
     
   def newRoute(self,**kwargs):
     r = Route(**kwargs)
-    self.routes.add(w)
+    self.routes.append(w)
     return r
   
-  def toxml(self):
-    root = Element("gpx",{"xmlns":"http://www.topografix.com/GPX/1/1"})
-    for wpt in self.waypoints:
-      root.append(wpt.toxml("wpt"))
-    for route in self.routes:
-      root.append(route.toxml("rte","rtept"))    
-    for track in self.tracks:
-      trk = Element("trk")
-      name = Element("name")
-      name.text = track.name
-      trk.append(name)
-      for seg in track:
-        trk.append(seg.toxml("trkseg","trkpt"))
-      root.append(trk)
-    return root
-    
   def write(self,file):
     # note that we would like for this pretty-print possibly
     GPXWriter().write(self,file)
@@ -198,14 +194,14 @@ class GPX:
   
 class Path:
   """
-  Ordered list of points
+  Ordered list of points. Used directly as a track segment
+  and by extension for Route
   """
-  
   
   _wpt = None
   
-  def __init__(self):
-    self._wpt = []
+  def __init__(self, points=None):
+    self._wpt = points if points is not None else []
   
   def points(self):
     "Return a list of waypoints in the path"
@@ -263,12 +259,12 @@ class Path:
     else:
       return None
   
-  def toxml(self,name,ptname):
-    e = Element(name)
-    for p in self._wpt:
-      e.append(p.toxml(ptname))
-    return e
-    
+  def length(self):
+    d = 0
+    for i in xrange(1,len(self)):
+      d += self[i].dist(self[i-1])
+    return d
+  
   def __str__(self):
     return "Path{points=%d}" % len(self._wpt)
 
@@ -284,7 +280,7 @@ class Route(Path):
   link = None
   
   def __init__(self,**kwargs):
-    Path.__init__(self)
+    Path.__init__(self,**kwargs)
     for k, v in kwargs.iteritems():
        if k not in _route_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
@@ -303,8 +299,10 @@ class Track:
   link = None
   _s = None
   
-  def __init__(self,**kwargs):
-    self._s = []
+  def __init__(self,segments = None, points=None,**kwargs):
+    self._s = segments if segments is not None else []
+    if points is not None:
+      self.extendpt(points)
     for k, v in kwargs.iteritems():
        if k not in _track_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
@@ -338,6 +336,16 @@ class Track:
     "Add new waypoints to the end of the path"
     self._s.extend(trk)
   
+  def appendpt(self,wpt):
+    if len(self._s) == 0:
+      self.newSegment();
+    self._s[-1].append(wpt)
+
+  def extendpt(self,wpt):
+    if len(self._s) == 0:
+      self.newSegment();
+    self._s[-1].extend(wpt)
+  
   def __iter__(self):
     return self._s.__iter__()
 
@@ -370,7 +378,7 @@ class Waypoint:
   desc = None
   link = None
   sym = None
-  #type = None
+  type = None
   fix = None
   sat = None
   hdop = None
@@ -414,5 +422,8 @@ if __name__ == '__main__':
     for t in gpx.tracks:
       print t.name
       for s in t:
-        print len(s)
+        print "Pt count: %d" % len(s)
+        print s.timespan()
+        print s.bounds()
+        print s.length()
 
