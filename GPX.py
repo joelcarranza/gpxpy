@@ -46,7 +46,23 @@ class GPXWriter:
   Writes a GPX file to 
   """
   creator = "GPX.py"
-  
+ 
+  # Taken from: http://infix.se/2007/02/06/gentlemen-indent-your-xml
+  def _indent(self,elem, level=0):
+    i = "\n" + level*"  "
+    if len(elem):
+        if not elem.text or not elem.text.strip():
+            elem.text = i + "  "
+        for e in elem:
+            self._indent(e, level+1)
+            if not e.tail or not e.tail.strip():
+                e.tail = i + "  "
+        if not e.tail or not e.tail.strip():
+            e.tail = i
+    else:
+        if level and (not elem.tail or not elem.tail.strip()):
+            elem.tail = i
+                
   def text(self,name,value):
     e = Element(name)
     e.text = value
@@ -91,7 +107,9 @@ class GPXWriter:
     return e
     
   def write(self,gpx,file):
-     ElementTree.ElementTree(self.gpx(gpx)).write(file)
+    root = self.gpx(gpx)
+    self._indent(root)
+    ElementTree.ElementTree(root).write(file)
 
 class GPXParser:
   """
@@ -121,7 +139,7 @@ class GPXParser:
     root = ElementTree.parse(src).getroot()
     # namespace should be either gpx1/0 or gpx1/1
     self.NS = root.tag[1:-4]
-    for wptEl in root.findall("{%s}swpt" % self.NS):
+    for wptEl in root.findall("{%s}wpt" % self.NS):
       self.gpx.waypoints.append(self.parseWaypoint(wptEl))
     for rteEl in root.findall("{%s}rte" % self.NS):
       self.gpx.routes.append(self.parseRoute(rteEl))
@@ -160,7 +178,13 @@ class GPX:
   tracks
   waypoints
   routes
+  metadata see http://www.topografix.com/GPX/1/1/#type_metadataType
   """
+
+# TODO: these are pulled from metadata element  
+#  name = None
+#  desc = None
+  
   def __init__(self):
     self.tracks = []
     self.waypoints = []
@@ -175,8 +199,8 @@ class GPX:
     self.tracks.append(t)
     return t
 
-  def newWaypoint(self,**kwargs):
-    w = Waypoint(**kwargs)
+  def newWaypoint(self,lat,lon,**kwargs):
+    w = Waypoint(lat,lon,**kwargs)
     self.waypoints.append(w)
     return w
     
