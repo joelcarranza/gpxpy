@@ -10,7 +10,7 @@ Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 import sys
 import argparse
 import re
-import datetime;
+import datetime
 from GPX import *
 import pytz
 
