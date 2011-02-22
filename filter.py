@@ -1,18 +1,27 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-trim.py
+filter.py
+
+Modify an existing GPX file to include only the portions you desire. 
+Includes keeping only tracks/routes/waypoints, a specific time period
+or a specific location.
 
 Created by Joel Carranza on 2011-02-14.
-Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+Copyright (c) 2011 Joel Carranza. All rights reserved.
 """
 
 import sys
 import argparse
 import re
 import datetime
-from GPX import *
+import GPX
 import pytz
+from functools import partial
+
+# TODO: this really needs support for selectively importing tracks/routes/waypoints
+# filter to within a geometry
+# probably could be renamed filter too :)
 
 def parseInt(s):
   if s:
@@ -20,7 +29,7 @@ def parseInt(s):
   else:
     return None
     
-def parseDate(s,tz,begin=True):
+def parseDate(s,begin=True):
   m = re.match('(\d+)-(\d+)-(\d+)(?:T(\d+):(\d+)(?::(\d+))?)?',s)
   if m:
     year,month,day,h,m,s = map(parseInt,m.groups())
@@ -31,7 +40,7 @@ def parseDate(s,tz,begin=True):
     if s is None:
       s = 0 if begin else 59
     ms = s = 0 if begin else 59 # ms must be between 1..60 ??
-    return datetime.datetime(year,month,day,h,m,s,ms,tz)
+    return datetime.datetime(year,month,day,h,m,s,ms,pytz.utc)
   else:
     raise Exception("Invalid date: "+s)
 
@@ -41,43 +50,37 @@ def parseDateRange(range,tz):
     p = (p[0],p[0])
   return (parseDate(p[0],tz,True),parseDate(p[1],tz,False))
 
-def trimSegment(seg,dateRange):
-  pts = []
-  for p in seg:
-    t = p.time
-    if t and dateRange[0] <= t and t <= dateRange[1]:
-      pts.append(p)
-  if len(pts) > 0:
-    path = Path()
-    path.extend(pts)
-    return path
-  else:
-    return None
-
-def main(input,output,dateRangeStr,tz):
-    dateRange = parseDateRange(dateRangeStr,tz)
-    
-    gpx = GPX()
-    for f in input:
-      gpx.load(f)
-    
-    newtracks = []
-    for trk in gpx.tracks:
-      s = map(lambda seg:trimSegment(seg,dateRange),trk)
-      s = filter(lambda x: x is not None,s)
-      if len(s) > 0:
-        t = Track()
-        t.name = trk.name
-        t.extend(s)
-        newtracks.append(t)
-    gpx.tracks = newtracks
-    gpx.write(output)
+def filterByDate(gpx,t0,t1):
+    def filter(p):
+      t = p.time
+      if not t:
+        return False
+      if t0 and t < t0:
+        return False
+      if t1 and t > t1:
+        return False
+      return True
+    gpx.filter(filter)
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description='Trim GPX file to time')
+  parser = argparse.ArgumentParser(description='Modify GPX to keep only what you want')
   parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
-  parser.add_argument('-o', metavar='file',nargs="+",type=argparse.FileType('w'),default=sys.stdout)
-  parser.add_argument('-tz', type=pytz.timezone,default=pytz.utc)
-  parser.add_argument('dateRange')
+  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
+  parser.add_argument('-tz', type=pytz.timezone)
+  parser.add_argument('-from', type=partial(parseDate,begin=True))
+  parser.add_argument('-to', type=partial(parseDate,begin=False))
   args = parser.parse_args()
-  main(args.i,args.o,args.dateRange,args.tz)
+  # parse GPX file
+  gpx = GPX.parse(args.i)
+  
+  # time filter
+  t0 = getattr(args,'from')
+  t1 = args.to
+  if args.tz is not None:
+    t0 = t0.replace(tzinfo=args.tz) if t0 else None
+    t1 = t1.replace(tzinfo=args.tz) if t1 else None
+  if t0 or t1:
+    filterByDate(gpx,t0,t1)
+    
+  # write it out!
+  gpx.write(args.o)
