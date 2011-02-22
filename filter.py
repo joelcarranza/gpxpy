@@ -21,7 +21,6 @@ from functools import partial
 
 # TODO: this really needs support for selectively importing tracks/routes/waypoints
 # filter to within a geometry
-# probably could be renamed filter too :)
 
 def parseInt(s):
   if s:
@@ -63,24 +62,30 @@ def filterByDate(gpx,t0,t1):
     gpx.filter(filter)
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description='Modify GPX to keep only what you want')
-  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
-  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
-  parser.add_argument('-tz', type=pytz.timezone)
-  parser.add_argument('-from', type=partial(parseDate,begin=True))
-  parser.add_argument('-to', type=partial(parseDate,begin=False))
+  parser = argparse.ArgumentParser(description='Modify a GPX file to keep only what you want')
+  parser.add_argument('-i', dest='infile',metavar='file',type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
+  parser.add_argument('-o', dest='outfile',metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file location for output. If none is specified STDOUT will be use")
+  parser.add_argument('-tz', type=pytz.timezone, help="Timezone of trim dates")
+  parser.add_argument('-from', dest='t0',metavar="datetime",type=partial(parseDate,begin=True),help="Start date. Of the form YYYY-MM-DD HH:MM")
+  parser.add_argument('-to', dest='t1',metavar="datetime", type=partial(parseDate,begin=False),help="End date. Of the form YYYY-MM-DD HH:MM")
+  parser.add_argument('--gpx-name', dest='gpxname',metavar="name", help="Name for resulting GPX file")
+  parser.add_argument('--gpx-description', dest='gpxdesc',metavar="name", help="Description for resulting GPX file")
   args = parser.parse_args()
   # parse GPX file
-  gpx = GPX.parse(args.i)
+  gpx = GPX.parse(args.infile)
   
   # time filter
-  t0 = getattr(args,'from')
-  t1 = args.to
-  if args.tz is not None:
-    t0 = t0.replace(tzinfo=args.tz) if t0 else None
-    t1 = t1.replace(tzinfo=args.tz) if t1 else None
+  t0 = args.t0
+  t1 = args.t1
   if t0 or t1:
+    if args.tz is not None:
+      t0 = t0.replace(tzinfo=args.tz) if t0 else None
+      t1 = t1.replace(tzinfo=args.tz) if t1 else None
     filterByDate(gpx,t0,t1)
     
   # write it out!
-  gpx.write(args.o)
+  if args.gpxname is not None:
+    gpx.name = args.gpxname
+  if args.gpxdesc is not None:
+    gpx.desc = args.gpxdesc
+  gpx.write(args.outfile)
