@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-gpx2kml.py
+gpxkml.py
+
+Converts gpx files to KML
 
 Created by Joel Carranza on 2011-02-19.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.
@@ -30,27 +32,27 @@ class KMLWriter():
   def document(self,**attr):
     attr = self._fattr(**attr)
     f = K.Document(**attr)
-    self._append(f)
+    self.append(f)
     self._root.append(f)
 
   def folder(self,name,**attr):
     attr = self._fattr(name=name,**attr)
     f = K.Folder(**attr)
-    self._append(f)
+    self.append(f)
     self._root.append(f)
 
   def parent(self):
     self._root.pop()
 
-  def _append(self,el):
+  def append(self,el):
     self._root[-1].append(el)
-    
+  
   def _fattr(self,name=None,description=None,style=None):
     result = {}
     if name is not None:
       result['name'] = name
     if description is not None:
-      result['description'] = descriopton
+      result['description'] = description
     if style is not None:
       result['styleUrl'] = style
     return result
@@ -60,17 +62,29 @@ class KMLWriter():
         attr['name'] = wpt.name 
     if 'style' not in attr:
         attr['style'] = "#gpx-waypoint"
+    if 'description' not in attr:
+        attr['description'] = wpt.desc or ''
     attr = self._fattr(**attr)
-    attr = dict(name=name,description=description,styleUrl=style)
-    self._append(K.Placemark(
+    self.append(K.Placemark(
       K.Point(coordinates=_wptstring(wpt)),
-      ))
+      **attr))
   
-  def lineStyle(self,id,color,width=1):
-    self._append(K.Style(dict(id=id),K.LineStyle(color=color,width=width)))
+  def lineStyle(self,id,color,width=1,labelColor=None, labelScale=None):
+    style = K.Style(dict(id=id))
+    style.append(K.LineStyle(color=color,width=width))
+    if labelColor is not None or labelScale is not None:
+      style.append(K.LabelStyle(color=color if labelColor else "ffffffff",scale=labelScale if labelScale else 1.0))
+    self.append(style)
   
-  def iconStyle(self,id,href,color=None,scale=1):
-    pass
+  def iconStyle(self,id,href,color=None,scale=1,labelColor=None,labelScale=None):
+    attr = dict(scale=scale)
+    if color is not None:
+      attr['color'] = color
+    style = K.Style(dict(id=id))
+    style.append(K.IconStyle(K.Icon(href=href),**attr))
+    if labelColor is not None or labelScale is not None:
+      style.append(K.LabelStyle(color=color if labelColor else "ffffffff",scale=labelScale if labelScale else 1.0))
+    self.append(style)
   
   def track(self,track,**attr):
     if 'name' not in attr:
@@ -78,7 +92,7 @@ class KMLWriter():
     if 'style' not in attr:
         attr['style'] = "#gpx-track"
     attr = self._fattr(**attr)
-    self._append(K.Placemark(
+    self.append(K.Placemark(
       K.LineString(coordinates="\n".join(map(_wptstring,track.points()))),
       **attr
     ))
@@ -89,7 +103,7 @@ class KMLWriter():
     if 'style' not in attr:
         attr['style'] = "#gpx-route"
     attr = self._fattr(**attr)
-    self._append(K.Placemark(
+    self.append(K.Placemark(
       K.LineString(coordinates="\n".join(map(_wptstring,rte.points()))),
       **attr
     ))
@@ -135,20 +149,29 @@ def _indent(elem, level=0):
             elem.tail = i
                     
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description='Trim GPX file to time')
-  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
-  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
-#  parser.add_argument('-f', type=bool,default=True)
+  parser = argparse.ArgumentParser(description='Generate KML from a GPX file')
+  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
+  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file name of resulting KML file. If none is specified STDOUT will be used")
+  parser.add_argument('--kml-name',dest='kmlname')
+  parser.add_argument('--kml-desc',dest='kmldesc')
+  parser.add_argument('-wpt-icon',dest='wpticon',default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
+  parser.add_argument('-wpt-scale',dest='wptscale',type=float,default=1.0)
+  parser.add_argument('-track-color',dest='trkcolor',default='ffff0000')
+  parser.add_argument('-track-width',dest='trkwidth',type=int,default=3)
+  parser.add_argument('-route-color',dest='routecolor',default='ffff0000')
+  parser.add_argument('-route-width',dest='routewidth',type=int,default=3)
+  
   args = parser.parse_args()
   gpx = GPX.GPX()
   gpx.load(args.i)
   
   kml = kml()
   w= KMLWriter(kml)
-  w.document()
-  w.iconStyle("gpx-waypoint","")
-  w.lineStyle("gpx-track","ffff0000")
-  w.lineStyle("gpx-route","ffff0000")
+  w.document(name=args.kmlname,description=args.kmldesc)
+  # TODO: Region here - level of detail!
+  w.iconStyle("gpx-waypoint",args.wpticon,args.wptscale)
+  w.lineStyle("gpx-track",args.trkcolor,args.trkwidth)
+  w.lineStyle("gpx-route",args.routecolor,args.routewidth)
   w.gpx(gpx)
   _indent(kml)
   ET.ElementTree(kml).write(args.o)
