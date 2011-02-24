@@ -19,6 +19,8 @@ import xml.etree.ElementTree as ET
 from KmlFactory import KmlFactory
 K = KmlFactory
 
+ET._namespace_map['http://www.google.com/kml/ext/2.2'] = 'gx'
+
 def kml():
   return K.kml(dict(xmlns='http://www.opengis.net/kml/2.2'))
 
@@ -177,8 +179,6 @@ if __name__ == "__main__":
   args = parser.parse_args()
   gpx = GPX.GPX()
   gpx.load(args.i)
-  
-  ET._namespace_map['http://www.google.com/kml/ext/2.2'] = 'gx'
   
   kml = kml()
   w= KMLWriter(kml)
