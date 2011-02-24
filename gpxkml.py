@@ -9,8 +9,10 @@ Created by Joel Carranza on 2011-02-19.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
+import xml.etree.cElementTree as ET
 import sys
 import argparse
+import isodate
 import GPX
 import functools
 import xml.etree.ElementTree as ET
@@ -26,8 +28,11 @@ def _wptstring(wpt):
 class KMLWriter():
   """docstring for KMLWriter"""
   
+  
+  
   def __init__(self,root):
     self._root = [root]
+    self.gxTracks = True
   
   def document(self,**attr):
     attr = self._fattr(**attr)
@@ -92,10 +97,18 @@ class KMLWriter():
     if 'style' not in attr:
         attr['style'] = "#gpx-track"
     attr = self._fattr(**attr)
-    self.append(K.Placemark(
-      K.LineString(coordinates="\n".join(map(_wptstring,track.points()))),
+    pl = K.Placemark(
       **attr
-    ))
+    )
+    if self.gxTracks:
+      trk = ET.SubElement(pl,'{http://www.google.com/kml/ext/2.2}Track')
+      for w in track.points():
+        ET.SubElement(trk,'when').text = isodate.datetime_isoformat(w.time)
+      for w in track.points():
+        ET.SubElement(trk,'{http://www.google.com/kml/ext/2.2}coord').text = " ".join(map(str,w.tuple3d()))
+    else:
+      pl.append(K.LineString(coordinates="\n".join(map(_wptstring,track.points()))))
+    self.append(pl)
 
   def route(self,rte):
     if 'name' not in attr:
@@ -156,14 +169,16 @@ if __name__ == "__main__":
   parser.add_argument('--kml-desc',dest='kmldesc')
   parser.add_argument('-wpt-icon',dest='wpticon',default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
   parser.add_argument('-wpt-scale',dest='wptscale',type=float,default=1.0)
-  parser.add_argument('-track-color',dest='trkcolor',default='ffff0000')
+  parser.add_argument('-track-color',dest='trkcolor',default='99ff7e00')
   parser.add_argument('-track-width',dest='trkwidth',type=int,default=3)
-  parser.add_argument('-route-color',dest='routecolor',default='ffff0000')
+  parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
   parser.add_argument('-route-width',dest='routewidth',type=int,default=3)
   
   args = parser.parse_args()
   gpx = GPX.GPX()
   gpx.load(args.i)
+  
+  ET._namespace_map['http://www.google.com/kml/ext/2.2'] = 'gx'
   
   kml = kml()
   w= KMLWriter(kml)
