@@ -6,9 +6,9 @@ GPX.py
 Created by Joel Carranza on 2011-02-06.
 """
 
-import xml.etree.ElementTree as ElementTree
-from xml.etree.ElementTree import Element
-from xml.etree.ElementTree import SubElement
+import xml.etree.cElementTree as ElementTree
+from xml.etree.cElementTree import Element
+from xml.etree.cElementTree import SubElement
 import sys
 import os
 # this is going to fail on 2.5???
@@ -90,8 +90,8 @@ class GPX:
   """
 
 # TODO: these are pulled from metadata element  
-#  name = None
-#  desc = None
+  name = None
+  desc = None
   
   def __init__(self):
     self.tracks = []
