@@ -7,8 +7,7 @@ Created by Joel Carranza on 2011-02-06.
 """
 
 import xml.etree.cElementTree as ElementTree
-from xml.etree.cElementTree import Element
-from xml.etree.cElementTree import SubElement
+from xml.etree.cElementTree import Element,SubElement
 import sys
 import os
 # this is going to fail on 2.5???
@@ -51,7 +50,7 @@ def parse(source):
 def wptbounds(pts):
   "return a bounding box which contains all waypoints on this path"
   # TODO: this requires a list and it would be better if we just did it in one loop
-  if len(pts) == 0:
+  if not pts:
     return None
   lat = [p.lat for p in pts]
   lon = [p.lon for p in pts]
@@ -60,10 +59,7 @@ def wptbounds(pts):
 def wpttimespan(pts):
   "return upper and lower bounds on the time"
   t = [p.time for p in pts if p.time is not None]
-  if len(t) > 0:
-    return (min(t),max(t))
-  else:
-    return None
+  return (min(t),max(t)) if t else None
 
 # TODO: math!
 # http://www.movable-type.co.uk/scripts/latlong.html
@@ -138,11 +134,11 @@ class GPX:
 
   def bounds(self):
     "return a bounding box which contains all waypoints on this path"
-    return wptbounds([p for p in self.allpoints()])
+    return wptbounds(list(self.allpoints()))
 
   def timespan(self):
     "return a bounding box which contains all waypoints on this path"
-    return wpttimespan([p for p in self.allpoints()])
+    return wpttimespan(list(self.allpoints()))
   
   def write(self,file):
     # note that we would like for this pretty-print possibly
@@ -287,7 +283,7 @@ class Track:
     for s in self._s:
       s.filter(pred)
     # drop empty segments
-    self._s[:] = filter(lambda s:len(s) > 0,self._s)
+    self._s[:] = filter(lambda s:len(s),self._s)
   
   
   def segments(self):
@@ -303,12 +299,12 @@ class Track:
     self._s.extend(trk)
   
   def appendpt(self,wpt):
-    if len(self._s) == 0:
+    if not self._s:
       self.newSegment();
     self._s[-1].append(wpt)
 
   def extendpt(self,wpt):
-    if len(self._s) == 0:
+    if not self._s:
       self.newSegment();
     self._s[-1].extend(wpt)
   
