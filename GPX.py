@@ -47,6 +47,14 @@ def parse(source):
   gpx.load(source)
   return gpx
 
+def wptdistance(pts):
+  # does there exist some pairwise function?
+  d = 0
+  for ix in xrange(1,len(pts)):
+    d += pts[ix].dist(pts[ix-1])
+  return d
+
+
 def wptbounds(pts):
   "return a bounding box which contains all waypoints on this path"
   # TODO: this requires a list and it would be better if we just did it in one loop
@@ -206,6 +214,9 @@ class Path:
     "return min max bounds of path"
     return wpttimespan(self._wpt)
   
+  def distance(self):
+    return wptdistance(self._wpt)
+
   def length(self):
     d = 0
     for i in xrange(1,len(self)):
@@ -273,12 +284,6 @@ class Track:
       self._s[0].extend(s.points)
     self._s[1:] = []
   
-  # TODO: split! - given a predicate which looks at points pairwise - split around those points
-  # split will sever the link between two points which fail predicate
-  # it is therefor NOT useful probably for simply "cutting" a path at a point
-  # where you want to perhaps duplicate a point
-  def split(self,pred):
-    pass
     
   def filter(self,pred):
     for s in self._s:

@@ -96,6 +96,8 @@ gpx.waypoints.append(Waypoint(36.634764,-118.385863,time=ptime('2010-9-13 8:00')
 #gpxpts.extend(gpx.waypoints)
 gpxpts.sort(key=lambda w:w.time)
 
+gpx.tracks = []
+
 for day,result in groupby(gpxpts,key=dayKey):
   pts = list(result)
   out = [pts[0]]
