@@ -71,12 +71,13 @@ class KMLWriter():
         attr['style'] = "#gpx-waypoint"
     if 'description' not in attr:
         attr['description'] = wpt.desc or ''
-    if wpt.time:
-        attr['']
     attr = self._fattr(**attr)
-    self.append(K.Placemark(
+    el = K.Placemark(
       K.Point(coordinates=_wptstring(wpt)),
-      **attr))
+      **attr)
+    if wpt.time:
+      el.append(K.TimeStamp(when=isodate.datetime_isoformat(wpt.time)))
+    self.append(el)
   
   def lineStyle(self,id,color,width=1,labelColor=None, labelScale=None):
     style = K.Style(dict(id=id))
