@@ -19,7 +19,7 @@ def binByDay(pts,tz):
   for p in pts:
     t = p.time
     if t is not None:
-      t = t.astimezone(tz)
+      t = tz.normalize(t.astimezone(tz))
       key = (t.year,t.month,t.day)
       if key not in days:
         days[key] = []

@@ -10,8 +10,9 @@ import xml.etree.cElementTree as ElementTree
 from xml.etree.cElementTree import Element,SubElement
 import sys
 import os
+import pytz
 # this is going to fail on 2.5???
-import dateutil.parser
+import isodate
 import math
 
 _route_scheme = _track_scheme = dict(name="s",
@@ -53,7 +54,6 @@ def wptdistance(pts):
   for ix in xrange(1,len(pts)):
     d += pts[ix].dist(pts[ix-1])
   return d
-
 
 def wptbounds(pts):
   "return a bounding box which contains all waypoints on this path"
@@ -214,14 +214,8 @@ class Path:
     "return min max bounds of path"
     return wpttimespan(self._wpt)
   
-  def distance(self):
-    return wptdistance(self._wpt)
-
   def length(self):
-    d = 0
-    for i in xrange(1,len(self)):
-      d += self[i].dist(self[i-1])
-    return d
+    return wptdistance(self._wpt)
   
   def __str__(self):
     return "Path{points=%d}" % len(self._wpt)
@@ -370,7 +364,7 @@ class Waypoint:
   def tuple3d(self):
     return (self.lon,self.lat,self.ele)
     
-  def dist(self,p):
+  def dist(self,p,includeEle=False):
     "Distance between two waypoints using haversine"
     # TODO: take into account of elevation!
     R = 6372800 # Radius of earth in meters
@@ -382,7 +376,11 @@ class Waypoint:
     dLon = lon2-lon1
     a = math.sin(dLat/2) * math.sin(dLat/2) + math.cos(lat1) * math.cos(lat2) * math.sin(dLon/2) * math.sin(dLon/2)
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
-    return R * c;
+    d = R * c
+    # approximate distance in 3d by adding elevation distance
+    if includeEle and self.ele is not None and p.ele is not None:
+      d += abs(self.ele-p.ele)
+    return d
 
 class GPXWriter:
   """
@@ -417,7 +415,7 @@ class GPXWriter:
       if value is not None:
         c = Element(p)
         if fmt == 'd':
-          c.text = value.isoformat()
+          c.text = isodate.datetime_isoformat(value.astimezone(pytz.utc))
         else:
           c.text = str(value)
         e.append(c)
@@ -468,7 +466,7 @@ class GPXParser:
         if fmt == 's':
           setattr(obj,k,child.text)
         elif fmt == 'd':
-          setattr(obj,k,dateutil.parser.parse(child.text))
+          setattr(obj,k,isodate.parse_datetime(child.text).astimezone(pytz.utc))
         elif fmt == 'i':
           setattr(obj,k,int(child.text))
         elif fmt == 'n':

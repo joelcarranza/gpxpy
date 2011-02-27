@@ -1,6 +1,12 @@
 import xml.etree.cElementTree as ET
 import functools
 
+"""
+KmlFactory
+
+creates KML elements in a nice way
+"""
+
 # Taken from http://effbot.org/zone/element-builder.htm
 class _K(object):
 

@@ -71,6 +71,8 @@ class KMLWriter():
         attr['style'] = "#gpx-waypoint"
     if 'description' not in attr:
         attr['description'] = wpt.desc or ''
+    if wpt.time:
+        attr['']
     attr = self._fattr(**attr)
     self.append(K.Placemark(
       K.Point(coordinates=_wptstring(wpt)),

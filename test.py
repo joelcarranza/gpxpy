@@ -80,6 +80,12 @@ class ParseTest(unittest.TestCase):
     seg = self.gpx.tracks[0][0]
     assert seg.bounds() is not None
     
+  def testFilter(self):
+    self.gpx.filter(lambda x:False)
+    self.assertEquals(len(self.gpx.waypoints),0)
+    self.assertEquals(len(self.gpx.tracks),0)
+    self.assertEquals(len(self.gpx.routes),0)
+    
 class WaypointTest(unittest.TestCase):
   def testDist(self):
     # result taken from http://en.wikipedia.org/wiki/Great-circle_distance
