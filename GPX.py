@@ -257,6 +257,7 @@ class Track:
   
   def points(self):
     "Returns an interator over all waypoints in track"
+    # TODO: can you itertools.chain here!
     for s in self._s:
       for p in s:
         yield p
@@ -356,7 +357,7 @@ class Waypoint:
        setattr(self, k, v)
    
   def __str__(self):
-    return "Waypoint{%d,%d}" % (self.lat,self.lon)
+    return "Waypoint{%f,%f}" % (self.lat,self.lon)
   
   def tuple2d(self):
     return (self.lon,self.lat)
