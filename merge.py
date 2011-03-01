@@ -22,7 +22,17 @@ def merge(files):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='Trim GPX file to time')
     parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
+    parser.add_argument('-w', action='store_true')
+    parser.add_argument('-t', action='store_true')
+    parser.add_argument('-r', action='store_true')
     parser.add_argument('files', metavar='file',nargs="+",type=argparse.FileType('r'),default=sys.stdin)
     args = parser.parse_args()
     gpx = merge(args.files);
+    if args.w or args.t or args.r:
+      if not args.w:
+        gpx.waypoint = []
+      if not args.t:
+        gpx.tracks = []
+      if not args.r:
+        gpx.route = []
     gpx.write(args.o)
