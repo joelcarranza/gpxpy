@@ -14,15 +14,22 @@ from itertools import groupby
 import pytz
 from datetime import timedelta
 from datetime import datetime
+import argparse
 
 help_message = '''
 The help message goes here.
 '''
 
+parser = argparse.ArgumentParser(description='Trim GPX file to time')
+parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
+parser.add_argument('-t', metavar='file',type=argparse.FileType('r'))
+parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
+args = parser.parse_args()
+
 gpx = GPX()
-gpx.load("data/JMT_gps_log_trimmed.gpx")
+gpx.load(args.i)
 jmt = GPX()
-jmt.load("data/JMT.gpx")
+jmt.load(args.t)
 
 # reverse because they are in opposite order
 jmtpts = list(jmt.tracks[0].points())[::-1]
@@ -72,20 +79,7 @@ def ptime(str):
 def createTrack(pts, start, finish):
   return Track(points=selectJmtPts(pts,start,finish))
 
-gpxpts = list(gpx.allpoints())
-gpx.waypoints.append(Waypoint(37.73,-119.559,time=ptime('2010-8-29 09:00')))
-gpx.waypoints.append(Waypoint(37.7888,-119.434,time=ptime('2010-8-29 13:00')))
-gpx.waypoints.append(Waypoint(37.7888,-119.434,time=ptime('2010-8-30 09:00')))
-gpx.waypoints.append(Waypoint(37.841085,-119.286346,time=ptime('2010-8-30 13:00')))
-gpx.waypoints.append(Waypoint(37.841085,-119.286346,time=ptime('2010-8-31 09:00')))
-gpx.waypoints.append(Waypoint( 37.744712,-119.212257,time=ptime('2010-8-31 13:00')))
-# additional fixed pts
-gpx.waypoints.append(Waypoint(  37.609801,-119.075117,time=ptime('2010-9-2 13:11')))
-gpx.waypoints.append(Waypoint(37.412684,-118.924876,time=ptime('2010-9-4 13:16')))
- 
-gpx.waypoints.append(Waypoint(37.412684,-118.924876,time=ptime('2010-9-5 8:39')))
-gpx.waypoints.append(Waypoint(36.634764,-118.385863,time=ptime('2010-9-13 8:00')))
-gpxpts.extend(gpx.waypoints)
+gpxpts = [w for w in gpx.allpoints() if w.time is not None]
 gpxpts.sort(key=lambda w:w.time)
 
 gpx.tracks = []
@@ -108,4 +102,4 @@ for day,result in groupby(gpxpts,key=dayKey):
     out.append(pb)
   gpx.newTrack(points=out,name="%d-%d-%d" % day)
   
-gpx.write("jmt-tracks.gpx")
+gpx.write(args.o)
