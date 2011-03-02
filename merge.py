@@ -10,13 +10,19 @@ Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 import argparse
 from GPX import *
 
-# TODO: support loading only wpt/tracks/routes
-# TODO: support merging by 
-
 def merge(files):
   gpx = GPX()
   for a in files:
     gpx.load(a)
+    
+  # sort waypoints by name
+  gpx.waypoints.sort(key=lambda w:w.name or '')
+  # sort routes by name
+  gpx.routes.sort(key=lambda r:r.name or '')  
+  
+  # sort tracks by time
+  # TODO: what if they don't have time?
+  gpx.tracks.sort(key=lambda t:t[0][0].time)
   return gpx
 
 if __name__ == "__main__":
