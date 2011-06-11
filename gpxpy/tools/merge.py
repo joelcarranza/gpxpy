@@ -8,7 +8,7 @@ Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
 import argparse
-from GPX import *
+from gpxpy import *
 
 def merge(files):
   gpx = GPX()

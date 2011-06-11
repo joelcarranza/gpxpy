@@ -63,6 +63,19 @@ split (distance)
 supplement
 stops - generate stops
 
+Usage scenario and implications:
+Download a GPX track from GPS using GPSbabel.
+  Contains my track a waypoint of where i want to split the track in two
+  + old tracks in different places and a bunch of waypoints wherever
+Want to filter track by time
+  + got confused with time format forgot that I decided to use comma (should probably make these simple -from and -to arguments) better docs
+  - waypoints from Garmin have no time - need a better way to exclude nuke them as a first approximation
+  - better to exclude them by specifying a region of interest. 
+I've now got my track - label the GPX file with a good name/description/and metadata
+Now I've created a waypoint at peak - want to split the track into ascent and descent
+Now I want to pull in GNIS data for the area and annotate what was on the trail
+Now I want to produce KML file!
+
 
 TOD0:
   - pretty print XML 

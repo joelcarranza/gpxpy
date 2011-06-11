@@ -13,7 +13,7 @@ import xml.etree.cElementTree as ET
 import sys
 import argparse
 import isodate
-import GPX
+from gpxpy import GPX
 import functools
 import xml.etree.ElementTree as ET
 from KmlFactory import KmlFactory
@@ -180,7 +180,7 @@ if __name__ == "__main__":
   parser.add_argument('-route-width',dest='routewidth',type=int,default=3)
   
   args = parser.parse_args()
-  gpx = GPX.GPX()
+  gpx = GPX()
   gpx.load(args.i)
   
   kml = kml()

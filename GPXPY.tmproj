@@ -3,52 +3,94 @@
 <plist version="1.0">
 <dict>
 	<key>currentDocument</key>
-	<string>GPX.py</string>
+	<string>gpx2ele.py</string>
 	<key>documents</key>
 	<array>
 		<dict>
 			<key>filename</key>
 			<string>jmt2kml.py</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:08:53Z</date>
+			<date>2011-02-19T23:43:52Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>supplement.py</string>
+			<string>synthesize-jmt-track.py</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:16:37Z</date>
+			<date>2011-04-03T16:30:59Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>test.py</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:16:34Z</date>
+			<date>2011-04-03T14:58:13Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>NOTES.markdown</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:16:33Z</date>
+			<date>2011-04-03T16:30:56Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>merge.py</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:16:40Z</date>
+			<date>2011-04-03T01:30:54Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
-			<string>trim.py</string>
+			<string>filter.py</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:16:30Z</date>
+			<date>2011-04-03T16:31:01Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>gnis2gpx.py</string>
+			<key>lastUsed</key>
+			<date>2011-03-01T05:41:07Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>breadcrumbs.py</string>
+			<key>lastUsed</key>
+			<date>2011-04-03T16:32:39Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>byday.py</string>
+			<key>lastUsed</key>
+			<date>2011-04-03T23:17:29Z</date>
 		</dict>
 		<dict>
 			<key>filename</key>
 			<string>GPX.py</string>
 			<key>lastUsed</key>
-			<date>2011-02-15T17:16:40Z</date>
+			<date>2011-04-03T16:33:03Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>gpx2ele.py</string>
+			<key>lastUsed</key>
+			<date>2011-04-05T04:22:51Z</date>
 			<key>selected</key>
 			<true/>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>geotag_flickr.py</string>
+			<key>lastUsed</key>
+			<date>2011-04-03T23:17:29Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>gpxkml.py</string>
+			<key>lastUsed</key>
+			<date>2011-04-03T23:17:15Z</date>
+		</dict>
+		<dict>
+			<key>filename</key>
+			<string>KmlFactory.py</string>
+			<key>lastUsed</key>
+			<date>2011-04-03T01:30:55Z</date>
 		</dict>
 	</array>
 	<key>fileHierarchyDrawerWidth</key>
@@ -60,42 +102,250 @@
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>12</integer>
+				<integer>0</integer>
 				<key>line</key>
-				<integer>265</integer>
+				<integer>340</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>320</integer>
 		</dict>
-		<key>NOTES.markdown</key>
+		<key>KmlFactory.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>25</integer>
+				<integer>1</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>0</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>0</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>1</integer>
+			</dict>
+		</dict>
+		<key>NOTES.markdown</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>104</integer>
+				<key>line</key>
+				<integer>71</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>12</integer>
+			<integer>54</integer>
 		</dict>
-		<key>jmt2kml.py</key>
+		<key>breadcrumbs.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>37</integer>
+				<key>line</key>
+				<integer>60</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>29</integer>
+		</dict>
+		<key>byday.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>40</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>11</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>10</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>40</integer>
+				<key>line</key>
+				<integer>21</integer>
+			</dict>
+		</dict>
+		<key>filter.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>72</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>48</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>73</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>72</integer>
+			</dict>
+		</dict>
+		<key>geotag_flickr.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>31</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>8</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>32</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>31</integer>
+			</dict>
+		</dict>
+		<key>gnis2gpx.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>22</integer>
+				<key>line</key>
+				<integer>23</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>3</integer>
+		</dict>
+		<key>gpx2ele.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>69</integer>
+				<key>line</key>
+				<integer>29</integer>
+			</dict>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>15</integer>
+		</dict>
+		<key>gpxkml.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
 				<integer>35</integer>
 				<key>line</key>
-				<integer>47</integer>
+				<integer>194</integer>
 			</dict>
+			<key>columnSelection</key>
+			<false/>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>17</integer>
+			<integer>161</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>0</integer>
+				<key>line</key>
+				<integer>168</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>35</integer>
+				<key>line</key>
+				<integer>194</integer>
+			</dict>
+		</dict>
+		<key>jmt2kml.py</key>
+		<dict>
+			<key>caret</key>
+			<dict>
+				<key>column</key>
+				<integer>12</integer>
+				<key>line</key>
+				<integer>34</integer>
+			</dict>
+			<key>columnSelection</key>
+			<false/>
+			<key>firstVisibleColumn</key>
+			<integer>0</integer>
+			<key>firstVisibleLine</key>
+			<integer>23</integer>
+			<key>selectFrom</key>
+			<dict>
+				<key>column</key>
+				<integer>42</integer>
+				<key>line</key>
+				<integer>34</integer>
+			</dict>
+			<key>selectTo</key>
+			<dict>
+				<key>column</key>
+				<integer>12</integer>
+				<key>line</key>
+				<integer>34</integer>
+			</dict>
 		</dict>
 		<key>merge.py</key>
 		<dict>
@@ -104,69 +354,47 @@
 				<key>column</key>
 				<integer>0</integer>
 				<key>line</key>
-				<integer>19</integer>
+				<integer>11</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>0</integer>
+			<integer>4</integer>
 		</dict>
-		<key>supplement.py</key>
+		<key>synthesize-jmt-track.py</key>
 		<dict>
 			<key>caret</key>
 			<dict>
 				<key>column</key>
-				<integer>9</integer>
+				<integer>7</integer>
 				<key>line</key>
-				<integer>40</integer>
+				<integer>76</integer>
 			</dict>
 			<key>firstVisibleColumn</key>
 			<integer>0</integer>
 			<key>firstVisibleLine</key>
-			<integer>13</integer>
-		</dict>
-		<key>test.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>0</integer>
-				<key>line</key>
-				<integer>10</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>44</integer>
-		</dict>
-		<key>trim.py</key>
-		<dict>
-			<key>caret</key>
-			<dict>
-				<key>column</key>
-				<integer>12</integer>
-				<key>line</key>
-				<integer>25</integer>
-			</dict>
-			<key>firstVisibleColumn</key>
-			<integer>0</integer>
-			<key>firstVisibleLine</key>
-			<integer>36</integer>
+			<integer>59</integer>
 		</dict>
 	</dict>
 	<key>openDocuments</key>
 	<array>
-		<string>merge.py</string>
-		<string>trim.py</string>
-		<string>supplement.py</string>
-		<string>jmt2kml.py</string>
 		<string>GPX.py</string>
+		<string>synthesize-jmt-track.py</string>
+		<string>filter.py</string>
+		<string>byday.py</string>
 		<string>NOTES.markdown</string>
-		<string>test.py</string>
+		<string>breadcrumbs.py</string>
+		<string>merge.py</string>
+		<string>jmt2kml.py</string>
+		<string>KmlFactory.py</string>
+		<string>gpxkml.py</string>
+		<string>geotag_flickr.py</string>
+		<string>gpx2ele.py</string>
+		<string>gnis2gpx.py</string>
 	</array>
 	<key>showFileHierarchyDrawer</key>
 	<true/>
 	<key>windowFrame</key>
-	<string>{{255, 77}, {632, 865}}</string>
+	<string>{{648, 4}, {632, 774}}</string>
 </dict>
 </plist>

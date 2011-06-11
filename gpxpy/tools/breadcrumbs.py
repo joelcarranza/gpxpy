@@ -11,7 +11,7 @@ import sys
 import argparse
 import re
 import datetime;
-from GPX import *
+from gpxpy import *
 import pytz
 import re
 

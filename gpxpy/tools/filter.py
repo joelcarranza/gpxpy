@@ -15,7 +15,7 @@ import sys
 import argparse
 import re
 import datetime
-import GPX
+from gpxpy import *
 import pytz
 from functools import partial
 
