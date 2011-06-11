@@ -14,6 +14,7 @@ import pytz
 # this is going to fail on 2.5???
 import isodate
 import math
+import bisect
 
 _route_scheme = _track_scheme = dict(name="s",
   cmt="s",
@@ -130,7 +131,15 @@ class GPX:
     for t in self.tracks:
       for w in t.points():
         yield w
+  
+  def ptAtTime(self,dt):
+    for t in self.tracks:
+      for s in t:
+        (mints,maxts) = s.timespan()
+        if mints < dt and dt < maxts:
+          return s.ptAtTime(dt)
 
+    
   def filter(self,pred):
     self.waypoints[:] = filter(pred,self.waypoints)
     for trk in self.tracks:
@@ -187,6 +196,11 @@ class Path:
     "Remove point from this path based on predicate"
     self._wpt = filter(pred,self._wpt)
     
+  def ptAtTime(self,date):
+    dts = [p.time for p in self]
+    ix = bisect.bisect_left(dts,date)
+    return self[ix]
+
   def simplify(self,pred):
     """Remove points form path based on predicate. Predicate
     is passed two points, the current point and the last point
@@ -196,7 +210,7 @@ class Path:
       if pred(p,np[-1]):
         np.append(p)
     self._wpt = np
-    
+  
   def __iter__(self):
     return self._wpt.__iter__()
   
@@ -285,6 +299,9 @@ class Track:
     # drop empty segments
     self._s[:] = filter(lambda s:len(s),self._s)
   
+  
+  def ptAtTime(self,date):
+    return min(self.points(),key=lambda p:abs(p.time-date))
   
   def segments(self):
     return self._s
