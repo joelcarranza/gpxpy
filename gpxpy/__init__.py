@@ -15,6 +15,8 @@ import pytz
 import isodate
 import math
 import bisect
+from xmlutil import XAttr as xa
+import xmlutil
 
 # TODO: these should be class attributes
 _route_scheme = _track_scheme = dict(name="s",
@@ -23,22 +25,6 @@ _route_scheme = _track_scheme = dict(name="s",
   src="s",
   link="s")
 
-_wpt_scheme = dict(ele="n",
-  time="d",
-  magvar="n",
-  geoidheight="n",
-  name="s",
-  cmt="s",
-  desc="s",
-  src="s",
-  link="s",
-  sym="s",
-  type="s",
-  fix="s",
-  sat="i",
-  hdop="n",
-  vdop="n",
-  pdop="n")
 
 NS_1_0 = 'http://www.topografix.com/GPX/1/0'
 NS = NS_1_1 = 'http://www.topografix.com/GPX/1/1'
@@ -238,14 +224,15 @@ class Route(Path):
   n ordered list of waypoints representing a series of turn points leading to a destination.
   """
   
+  _scheme = [xa('name',type="s"),
+    xa('cmt',type="s"),
+    xa('desc',type="s"),
+    xa('src',type="s"),
+    xa('link',type="s")]
+  
   def __init__(self,**kwargs):
     Path.__init__(self,**kwargs)
-    for k in _route_scheme.keys():
-      setattr(self,k,None)
-    for k, v in kwargs.iteritems():
-       if k not in _route_scheme:
-           raise TypeError("Invalid keyword argument %s" % k)
-       setattr(self, k, v)
+    xmlutil.init(self,kwargs,self._scheme)
   
 class Track:
   """
@@ -253,23 +240,19 @@ class Track:
   taken together represent a (potentially complex) path
   """
           
-  name = None
-  cmt = None
-  src = None
-  desc = None
-  link = None
+  _scheme = [xa('name',type="s"),
+    xa('cmt',type="s"),
+    xa('desc',type="s"),
+    xa('src',type="s"),
+    xa('link',type="s")]
+    
   _s = None
   
   def __init__(self,segments = None, points=None,**kwargs):
     self._s = segments if segments is not None else []
     if points is not None:
       self.extendpt(points)
-    for k in _track_scheme.keys():
-      setattr(self,k,None)
-    for k, v in kwargs.iteritems():
-       if k not in _track_scheme:
-           raise TypeError("Invalid keyword argument %s" % k)
-       setattr(self, k, v)
+    xmlutil.init(self,kwargs,self._scheme)
   
   def points(self):
     "Returns an interator over all waypoints in track"
@@ -341,16 +324,31 @@ class Waypoint:
   See: http://www.topografix.com/GPX/1/1/#type_wptType
   """
   
-  def __init__(self,lat=None,lon=None,**kwargs):
-     self.lat = lat
-     self.lon = lon
-     for k in _wpt_scheme.keys():
-       setattr(self,k,None)
-     for k, v in kwargs.iteritems():
-       if k not in _wpt_scheme:
-           raise TypeError("Invalid keyword argument %s" % k)
-       setattr(self, k, v)
-   
+  _scheme = [
+    xa('lat',type="n",attr=True),
+    xa('lon',type="n",attr=True),
+    xa('ele',type="n"),
+    xa('time',type="d"),
+    xa('magvar',type="n"),
+    xa('geoidheight',type="n"),
+    xa('name',type="s"),
+    xa('cmt',type="s"),
+    xa('desc',type="s"),
+    xa('src',type="s"),
+    xa('link',type="s"),
+    xa('sym',type="s"),
+    xa('type',type="s"),
+    xa('fix',type="s"),
+    xa('sat',type="i"),
+    xa('hdop',type="n"),
+    xa('vdop',type="n"),
+    xa('pdop',type="n")]
+  
+  def __init__(self,lat,lon,**kwargs):
+    self.lat = lat
+    self.lon = lon
+    xmlutil.init(self,kwargs,self._scheme[2:])
+    
   def __str__(self):
     return "Waypoint{%f,%f}" % (self.lat,self.lon)
   
@@ -385,36 +383,7 @@ class GPXWriter:
   creator = "GPX.py "+VERSION
 
   # Taken from: http://infix.se/2007/02/06/gentlemen-indent-your-xml
-  def _indent(self,elem, level=0):
-    i = "\n" + level*"  "
-    if len(elem):
-        if not elem.text or not elem.text.strip():
-            elem.text = i + "  "
-        for e in elem:
-            self._indent(e, level+1)
-            if not e.tail or not e.tail.strip():
-                e.tail = i + "  "
-        if not e.tail or not e.tail.strip():
-            e.tail = i
-    else:
-        if level and (not elem.tail or not elem.tail.strip()):
-            elem.tail = i
 
-  def text(self,name,value):
-    e = Element(name)
-    e.text = value
-    return e
-
-  def textEl(self,obj,e,attr):
-    for p,fmt in attr.items():
-      value = getattr(obj,p)
-      if value is not None:
-        c = Element(p)
-        if fmt == 'd':
-          c.text = isodate.datetime_isoformat(value.astimezone(pytz.utc))
-        else:
-          c.text = str(value)
-        e.append(c)
 
   def gpx(self,gpx):
     root = Element("gpx",xmlns=NS,version="1.1",creator=self.creator)
@@ -422,19 +391,19 @@ class GPXWriter:
       root.append(self.wpt(wpt,"wpt"))
     for route in gpx.routes:
       el = self.path(route,"rte","rtept")
-      self.textEl(route,el,_route_scheme)
+      xmlutil.write(el,route,Route._scheme)
       root.append(el) 
     for track in gpx.tracks:
       el = SubElement(root,"trk")
-      self.textEl(track,el,_track_scheme)
+      xmlutil.write(el,track,Track._scheme)
       for seg in track:
         el.append(self.path(seg,"trkseg","trkpt"))
     return root
 
   def wpt(self,wpt,name):
    "Creates an XML element with specified name which represents this Waypoint"
-   e = Element(name,{"lat":str(wpt.lat),"lon":str(wpt.lon)})
-   self.textEl(wpt,e,_wpt_scheme)
+   e = Element(name)
+   xmlutil.write(e,wpt,Waypoint._scheme)
    return e
 
   def path(self,p,name,ptname):
@@ -445,7 +414,7 @@ class GPXWriter:
 
   def write(self,gpx,file):
     root = self.gpx(gpx)
-    self._indent(root)
+    xmlutil.indent(root)
     ElementTree.ElementTree(root).write(file)
 
 class GPXParser:
@@ -454,23 +423,6 @@ class GPXParser:
   """
   def __init__(self,gpx):
     self.gpx = gpx
-
-  def mapEl(self,obj,e,attr):
-    for k,fmt in attr.items():
-      child = e.find("{%s}%s" % (self.NS,k))
-      if child is not None:
-        if fmt == 's':
-          setattr(obj,k,child.text)
-        elif fmt == 'd':
-          setattr(obj,k,isodate.parse_datetime(child.text).astimezone(pytz.utc))
-        elif fmt == 'i':
-          setattr(obj,k,int(child.text))
-        elif fmt == 'n':
-          setattr(obj,k,float(child.text))
-        else:
-          raise Error("Unknown format")
-      else:
-        setattr(obj,k,None) 
 
   def parse(self,src):
     root = ElementTree.parse(src).getroot()
@@ -484,29 +436,23 @@ class GPXParser:
       self.gpx.tracks.append(self.parseTrack(trkEl))
 
   def parseTrack(self,el):
-    trk = Track()
+    trk = Track(**xmlutil.parse(self.NS,el,Track._scheme))
     for seg in el.findall("{%s}trkseg" % self.NS):
       p = Path()
       for wpel in seg.findall("{%s}trkpt" % self.NS):
         p.append(self.parseWaypoint(wpel))
       trk.append(p)
-    self.mapEl(trk,el,_track_scheme)
     return trk
 
   def parseRoute(self,el):
-    r = Route()
+    r = Route(**xmlutil.parse(self.NS,el,Route._scheme))
     for wpel in el.findall("{%s}rtept" % self.NS):
       r.append(self.parseWaypoint(wpel))
-    self.mapEl(r,el,_route_scheme)
     return r
 
 
   def parseWaypoint(self,e):
-    pt = Waypoint()
-    pt.lat = float(e.attrib['lat'])
-    pt.lon = float(e.attrib['lon'])
-    self.mapEl(pt,e,_wpt_scheme)
-    return pt
+    return Waypoint(**xmlutil.parse(self.NS,e,Waypoint._scheme))
 
 # TODO: this does not need a main!
 if __name__ == '__main__':
