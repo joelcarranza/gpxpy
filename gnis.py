@@ -10,7 +10,8 @@ Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 import sys
 import argparse
 import re
-import datetime;
+import datetime
+# XXX: this is gonna fail!
 from GPX import *
 import pytz
 from csv import DictReader

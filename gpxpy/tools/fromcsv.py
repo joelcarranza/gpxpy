@@ -15,6 +15,7 @@ from gpxpy import *
 import pytz
 from csv import DictReader
 
+#TODO: remove this before distribution!
 bounds = (36.559065887999999, -119.559910528, 37.872216623, -118.291351572)
 
 def main(files,latField,lonField,nameField,typeField):
