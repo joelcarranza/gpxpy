@@ -72,7 +72,7 @@ if __name__ == "__main__":
   parser.add_argument('--gpx-description', dest='gpxdesc',metavar="name", help="Description for resulting GPX file")
   args = parser.parse_args()
   # parse GPX file
-  gpx = GPX.parse(args.infile)
+  gpx = parse(args.infile)
   
   # time filter
   t0 = args.t0
