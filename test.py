@@ -1,10 +1,6 @@
 """Unit test for GPX.py"""
 
-from GPX import GPX
-from GPX import Path
-from GPX import Track
-from GPX import Route
-from GPX import Waypoint
+from gpxpy import *
 import unittest
 import StringIO
 import math

@@ -16,6 +16,7 @@ import isodate
 import math
 import bisect
 
+# TODO: these should be class attributes
 _route_scheme = _track_scheme = dict(name="s",
   cmt="s",
   desc="s",
@@ -93,10 +94,6 @@ class GPX:
   routes
   metadata see http://www.topografix.com/GPX/1/1/#type_metadataType
   """
-
-# TODO: these are pulled from metadata element  
-  name = None
-  desc = None
   
   def __init__(self):
     self.tracks = []
@@ -196,11 +193,13 @@ class Path:
     "Remove point from this path based on predicate"
     self._wpt = filter(pred,self._wpt)
     
+  # TODO: pt?
   def ptAtTime(self,date):
     dts = [p.time for p in self]
     ix = bisect.bisect_left(dts,date)
     return self[ix]
 
+  # TODO: this is deceptively named
   def simplify(self,pred):
     """Remove points form path based on predicate. Predicate
     is passed two points, the current point and the last point
@@ -239,14 +238,10 @@ class Route(Path):
   n ordered list of waypoints representing a series of turn points leading to a destination.
   """
   
-  name = None
-  cmt = None
-  src = None
-  desc = None
-  link = None
-  
   def __init__(self,**kwargs):
     Path.__init__(self,**kwargs)
+    for k in _route_scheme.keys():
+      setattr(self,k,None)
     for k, v in kwargs.iteritems():
        if k not in _route_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
@@ -269,6 +264,8 @@ class Track:
     self._s = segments if segments is not None else []
     if points is not None:
       self.extendpt(points)
+    for k in _track_scheme.keys():
+      setattr(self,k,None)
     for k, v in kwargs.iteritems():
        if k not in _track_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
@@ -344,29 +341,11 @@ class Waypoint:
   See: http://www.topografix.com/GPX/1/1/#type_wptType
   """
   
-  
-  lat = None
-  lon = None
-  ele = None
-  time = None
-  magvar = None
-  geoidheight = None
-  name = None
-  cmt = None
-  src = None
-  desc = None
-  link = None
-  sym = None
-  type = None
-  fix = None
-  sat = None
-  hdop = None
-  vdop = None
-  pdop = None
-  
   def __init__(self,lat=None,lon=None,**kwargs):
      self.lat = lat
      self.lon = lon
+     for k in _wpt_scheme.keys():
+       setattr(self,k,None)
      for k, v in kwargs.iteritems():
        if k not in _wpt_scheme:
            raise TypeError("Invalid keyword argument %s" % k)
@@ -529,6 +508,7 @@ class GPXParser:
     self.mapEl(pt,e,_wpt_scheme)
     return pt
 
+# TODO: this does not need a main!
 if __name__ == '__main__':
   import sys
   for fn in sys.argv[1:]:
