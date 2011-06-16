@@ -454,21 +454,5 @@ class GPXParser:
   def parseWaypoint(self,e):
     return Waypoint(**xmlutil.parse(self.NS,e,Waypoint._scheme))
 
-# TODO: this does not need a main!
-if __name__ == '__main__':
-  import sys
-  for fn in sys.argv[1:]:
-    gpx = GPX()
-    gpx.load(fn)
-    print fn
-    print "------------"
-    print "%d waypoints" % len(gpx.waypoints)
-    print "%d tracks" % len(gpx.tracks)
-    for t in gpx.tracks:
-      print t.name
-      for s in t:
-        print "Pt count: %d" % len(s)
-        print s.timespan()
-        print s.bounds()
-        print s.length()
+
 
