@@ -29,8 +29,14 @@ def parseInt(s):
     return None
     
 def parseDate(s,begin=True):
+  # need robust date parsing
+  # http://www.logarithmic.net/pfh/blog/01162445830
+  # or 
+  # http://labix.org/python-dateutil#head-217af1251c3f91cb598ccf3240c6ab8abcb30151
+  
   m = re.match('(\d+)-(\d+)-(\d+)(?:T(\d+):(\d+)(?::(\d+))?)?',s)
   if m:
+    # TODO: lambda? instead of parseInt
     year,month,day,h,m,s = map(parseInt,m.groups())
     if h is None:
       h = 0 if begin else 23

@@ -21,14 +21,12 @@ def binByDay(pts,tz):
   for p in pts:
     t = p.time
     if t is not None:
+      # TODO: itertools groupby?
       t = tz.normalize(t.astimezone(tz))
       key = (t.year,t.month,t.day)
       if key not in days:
         days[key] = []
       days[key].append(p)
-  print "Segment "
-  print len(pts)
-  print(days.keys())
   return days
 
 def main(files,tz):

@@ -31,6 +31,9 @@ def timespan(obj):
   print "  End: "+fmt_ts(endts)
 
 def point(p):
+  # TODO: alternate formats
+  # - HMS
+  # - Geohash!
   print "%.3f,%.3f" % (p.lat,p.lon)
   
 def gpx_info(gpx):
