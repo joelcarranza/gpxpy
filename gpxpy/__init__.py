@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-GPX.py
+gpxpy 
+
+Python API for working with GPX files. 
 
 Created by Joel Carranza on 2011-02-06.
 """
@@ -18,17 +20,20 @@ import bisect
 from xmlutil import XAttr as xa
 import xmlutil
 
+__version_info__ = ('0', '1')
+__version__ = '.'.join(__version_info__)
+
 NS_1_0 = 'http://www.topografix.com/GPX/1/0'
 NS = NS_1_1 = 'http://www.topografix.com/GPX/1/1'
-VERSION = "0.1"
 
 def parse(source):
-  "Construct a new GPX instance based on a file"
+  "Construct a new GPX instance based on a file object"
   gpx = GPX()
   gpx.load(source)
   return gpx
 
 def wptdistance(pts):
+  "Determine a total path distance for a list of waypoints"
   # does there exist some pairwise function?
   d = 0
   for ix in xrange(1,len(pts)):
@@ -37,7 +42,6 @@ def wptdistance(pts):
 
 def wptbounds(pts):
   "return a bounding box which contains all waypoints on this path"
-  # TODO: this requires a list and it would be better if we just did it in one loop
   if not pts:
     return None
   lat = [p.lat for p in pts]
@@ -45,40 +49,31 @@ def wptbounds(pts):
   return (min(lat),min(lon),max(lat),max(lon))
 
 def wpttimespan(pts):
-  "return upper and lower bounds on the time"
+  "return upper and lower bounds on the time for a list of points"
   t = [p.time for p in pts if p.time is not None]
   return (min(t),max(t)) if t else None
 
-# TODO: math!
-# http://www.movable-type.co.uk/scripts/latlong.html
-# dist2d
-# dist3d
-# See also: http://megocode3.wordpress.com/2008/02/05/haversine-formula-in-c/
-# "When a difference in altitude is smallish relative to the great circle distance, a quick approximation is to add the two. This is essentially the approximation of a right triangle’s hypotenuse by adding the lengths of the two legs, reliable when one leg is much longer than the other. If the two distances were similar in magnitude, the Pythagorean formula would be more accurate, i.e. the square root of the square of altitude difference plus the square of the great circle distance."
-# http://www.gps-forums.net/distance-between-two-points-t34357.html
-# interpolate! Possibly not that, instead its give me n points ever mile along line
-# distance from line (Cross-track distance?)
-# containment within polygon
-# UTM - to - LatLon (HARD!!!!)
-
-# TODO: copy() method for all classes
-
 class GPX:
   """
-  Model of a GPX file. Gpx file contains one or more of
-  the following types
-  tracks
-  waypoints
-  routes
-  metadata see http://www.topografix.com/GPX/1/1/#type_metadataType
+  Root element of a gpx file. 
+  see http://www.topografix.com/GPX/1/1/#type_metadataType
+
+  Attributes:
+    tracks - List of Track(s)
+    waypoints - List of Waypoint(s)
+    routes - List or Route(s)
   """
   
+  # TODO implement metadata!
+  
   def __init__(self):
+    self.name = None
     self.tracks = []
     self.waypoints = []
     self.routes = []
   
   def load(self,src):
+    "Populate this GPX file from a file source"
     parser = GPXParser(self)
     parser.parse(src)
   
@@ -94,10 +89,11 @@ class GPX:
     
   def newRoute(self,**kwargs):
     r = Route(**kwargs)
-    self.routes.append(w)
+    self.routes.append(r)
     return r
   
   def allpoints(self):
+    "Enumerate all waypoints in the GPX"
     for w in self.waypoints:
       yield w
     for r in self.routes:
@@ -144,7 +140,6 @@ class Path:
   Ordered list of points. Used directly as a track segment
   and by extension for Route
   """
-  
   _wpt = None
   
   def __init__(self, points=None):
@@ -213,7 +208,8 @@ class Path:
 
 class Route(Path):
   """
-  n ordered list of waypoints representing a series of turn points leading to a destination.
+  An ordered list of waypoints representing a series of turn points leading to a destination. 
+  See: http://www.topografix.com/GPX/1/1/#type_rteType
   """
   
   _scheme = [xa('name',type="s"),
@@ -224,14 +220,18 @@ class Route(Path):
     xa('number',type='n'),
     xa('type',type='s')]
   
-  def __init__(self,**kwargs):
-    Path.__init__(self,**kwargs)
+  def __init__(self,points=None,**kwargs):
+    Path.__init__(self,points if points is not None else [])
     xmlutil.init(self,kwargs,self._scheme)
   
 class Track:
   """
   Represents an ordered list of track segments (paths) which
-  taken together represent a (potentially complex) path
+  taken together represent a (potentially complex) path. 
+  A Track Segment holds a list of Track Points which are logically connected in order. To represent a single GPS track where GPS reception was lost, or the GPS receiver was turned off, start a new Track Segment for each continuous span of track data.
+  
+  See: 
+  http://www.topografix.com/GPX/1/1/#type_trkType
   """
           
   _scheme = [xa('name',type="s"),
@@ -256,6 +256,14 @@ class Track:
     for s in self._s:
       for p in s:
         yield p
+        
+  def bounds(self):
+     "return a bounding box which contains all waypoints on this path"
+     return wptbounds(list(self.points()))
+
+  def timespan(self):
+     "return a bounding box which contains all waypoints on this path"
+     return wpttimespan(list(self.points()))
   
   def newSegment(self,**kwargs):
     p = Path(**kwargs)
@@ -268,7 +276,6 @@ class Track:
       self._s[0].extend(s.points)
     self._s[1:] = []
   
-    
   def filter(self,pred):
     for s in self._s:
       s.filter(pred)
@@ -285,7 +292,6 @@ class Track:
   def append(self,trk):
     "Add a new waypoint to the end of the path"
     self._s.append(trk)
-
 
   def extend(self,trk):
     "Add new waypoints to the end of the path"
@@ -355,6 +361,11 @@ class Waypoint:
   def tuple3d(self):
     return (self.lon,self.lat,self.ele)
     
+    # http://www.movable-type.co.uk/scripts/latlong.html
+    # See also: http://megocode3.wordpress.com/2008/02/05/haversine-formula-in-c/
+    # "When a difference in altitude is smallish relative to the great circle distance, a quick approximation is to add the two. This is essentially the approximation of a right triangle’s hypotenuse by adding the lengths of the two legs, reliable when one leg is much longer than the other. If the two distances were similar in magnitude, the Pythagorean formula would be more accurate, i.e. the square root of the square of altitude difference plus the square of the great circle distance."
+    # http://www.gps-forums.net/distance-between-two-points-t34357.html
+    # interpolate! Possibly not that, instead its give me n points ever mile along line
   def dist(self,p,includeEle=False):
     "Distance between two waypoints using haversine"
     # TODO: take into account of elevation!
@@ -377,12 +388,11 @@ class GPXWriter:
   """
   Writes a GPX file to 
   """
-  creator = "GPX.py "+VERSION
-
-  # Taken from: http://infix.se/2007/02/06/gentlemen-indent-your-xml
+  creator = "gpxpy "+__version__
 
 
   def gpx(self,gpx):
+    "Construct an ElementTree for the given GPX file"
     root = Element("gpx",xmlns=NS,version="1.1",creator=self.creator)
     for wpt in gpx.waypoints:
       root.append(self.wpt(wpt,"wpt"))
@@ -416,7 +426,7 @@ class GPXWriter:
 
 class GPXParser:
   """
-  DOM Parsing tool which constructs a 
+  DOM Parsing tool which constructs a new GPX file
   """
   def __init__(self,gpx):
     self.gpx = gpx
