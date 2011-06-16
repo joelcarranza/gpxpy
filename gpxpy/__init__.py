@@ -18,14 +18,6 @@ import bisect
 from xmlutil import XAttr as xa
 import xmlutil
 
-# TODO: these should be class attributes
-_route_scheme = _track_scheme = dict(name="s",
-  cmt="s",
-  desc="s",
-  src="s",
-  link="s")
-
-
 NS_1_0 = 'http://www.topografix.com/GPX/1/0'
 NS = NS_1_1 = 'http://www.topografix.com/GPX/1/1'
 VERSION = "0.1"
@@ -228,7 +220,9 @@ class Route(Path):
     xa('cmt',type="s"),
     xa('desc',type="s"),
     xa('src',type="s"),
-    xa('link',type="s")]
+    xa('link',type="s"),
+    xa('number',type='n'),
+    xa('type',type='s')]
   
   def __init__(self,**kwargs):
     Path.__init__(self,**kwargs)
@@ -244,7 +238,9 @@ class Track:
     xa('cmt',type="s"),
     xa('desc',type="s"),
     xa('src',type="s"),
-    xa('link',type="s")]
+    xa('link',type="s"),
+    xa('number',type='n'),
+    xa('type',type='s')]
     
   _s = None
   
@@ -335,6 +331,7 @@ class Waypoint:
     xa('cmt',type="s"),
     xa('desc',type="s"),
     xa('src',type="s"),
+    # TODO: link is not a simple type
     xa('link',type="s"),
     xa('sym',type="s"),
     xa('type',type="s"),
