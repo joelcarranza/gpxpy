@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-trim.py
+gpxpy.tools.byday
+
+Split tracks into per-day components
 
 Created by Joel Carranza on 2011-02-14.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.

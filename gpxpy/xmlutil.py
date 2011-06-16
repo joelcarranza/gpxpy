@@ -14,8 +14,9 @@ import pytz
 # this is going to fail on 2.5???
 import isodate
 
-
+# Taken from: http://infix.se/2007/02/06/gentlemen-indent-your-xml
 def indent(elem, level=0):
+  "Indents an ElementTree"
   i = "\n" + level*"  "
   if len(elem):
       if not elem.text or not elem.text.strip():

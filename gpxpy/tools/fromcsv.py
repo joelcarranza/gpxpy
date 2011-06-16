@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-trim.py
+gpxpy.tools.fromcsv
+
+Creates a GPX file from a CSV file
 
 Created by Joel Carranza on 2011-02-14.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.

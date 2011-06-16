@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-merge.py
+gpxpy.tools.merge
+
+Merge several GPX tracks into one
 
 Created by Joel Carranza on 2011-02-11.
-Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
 import argparse

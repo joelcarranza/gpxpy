@@ -1,7 +1,10 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-trim.py
+gpxpy.tools.breadcrumbs
+
+Construct waypoints from tracks, creating a waypoint along the track
+at a specified interval
 
 Created by Joel Carranza on 2011-02-14.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.

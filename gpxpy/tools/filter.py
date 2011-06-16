@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # encoding: utf-8
 """
-filter.py
+gpxpy.tools.filter
 
 Modify an existing GPX file to include only the portions you desire. 
 Includes keeping only tracks/routes/waypoints, a specific time period
