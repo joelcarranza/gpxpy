@@ -88,7 +88,7 @@ def name_filter(name):
   # TODO: future wildcard support!
   return lambda x: x.name == name
 
-if __name__ == '__main__':
+def run():
   parser = argparse.ArgumentParser(description='Summary info from GPX file')
   parser.add_argument('infile', metavar='file',
                     help='gpx file')
@@ -110,4 +110,6 @@ if __name__ == '__main__':
   else:
     gpx_info(gpx)
   
+if __name__ == "__main__":
+  run()
   
