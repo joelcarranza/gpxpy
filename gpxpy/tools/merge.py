@@ -31,6 +31,7 @@ def merge(files):
 
 
 def run():
+    # TODO: support join -j
     parser = argparse.ArgumentParser(description='Merge multiple gpx files into one')
     parser.add_argument('-o', metavar='out-file',type=argparse.FileType('w'),default=sys.stdout)
     parser.add_argument('-w', action='store_true',help="waypoints only")

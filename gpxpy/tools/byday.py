@@ -16,6 +16,9 @@ import datetime;
 from gpxpy import *
 import pytz
 
+# byday really should be split - support
+# numerous options
+
 def binByDay(pts,tz):
   days = {}
   for p in pts:

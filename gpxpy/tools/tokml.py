@@ -174,9 +174,15 @@ if __name__ == "__main__":
   parser.add_argument('--kml-desc',dest='kmldesc')
   parser.add_argument('-wpt-icon',dest='wpticon',default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
   parser.add_argument('-wpt-scale',dest='wptscale',type=float,default=1.0)
-  parser.add_argument('-track-color',dest='trkcolor',default='99ff7e00')
+
+# TODO: this should support a list of colors
+# which we rotate through 
+parser.add_argument('-track-color',dest='trkcolor',default='99ff7e00')
   parser.add_argument('-track-width',dest='trkwidth',type=int,default=3)
-  parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
+
+# TODO: this should support a list of colors
+# which we rotate through 
+parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
   parser.add_argument('-route-width',dest='routewidth',type=int,default=3)
   
   args = parser.parse_args()

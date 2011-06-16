@@ -89,6 +89,7 @@ if __name__ == "__main__":
       t1 = t1.replace(tzinfo=args.tz) if t1 else None
     filterByDate(gpx,t0,t1)
     
+  # TODO: these options should be available in all tools!
   # write it out!
   if args.gpxname is not None:
     gpx.name = args.gpxname
