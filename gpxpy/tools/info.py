@@ -94,7 +94,7 @@ def run():
                     help='gpx file')
   parser.add_argument('name', metavar='name',
                     nargs="?",
-                    help='gpx file')
+                    help='name of a waypoint/track/route')
 
   args = parser.parse_args()
   gpx = GPX()
