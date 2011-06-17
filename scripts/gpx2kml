@@ -1,0 +1,5 @@
+#!python
+
+import gpxpy.tools.tokml
+
+gpxpy.tools.tokml.run()
