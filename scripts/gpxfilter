@@ -1,0 +1,5 @@
+#!python
+
+import gpxpy.tools.filter
+
+gpxpy.tools.filter.run()
