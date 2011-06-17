@@ -9,20 +9,43 @@ Created by Joel Carranza on 2011-02-19.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
-import xml.etree.cElementTree as ET
 import sys
 import argparse
 import isodate
 from gpxpy import GPX
 import functools
 import xml.etree.ElementTree as ET
-from KmlFactory import KmlFactory
-K = KmlFactory
 
 ET._namespace_map['http://www.google.com/kml/ext/2.2'] = 'gx'
 
-def kml():
-  return K.kml(dict(xmlns='http://www.opengis.net/kml/2.2'))
+# TODO: this should go into tokml!
+# Taken from http://effbot.org/zone/element-builder.htm
+class _K(object):
+
+    def __call__(self, tag, *children, **attrib):
+        elem = ET.Element(tag)
+        for key,value in attrib.items():
+          c = ET.SubElement(elem,key)
+          c.text = str(value)
+        for item in children:
+            if isinstance(item, dict):
+                elem.attrib.update(item)
+            elif isinstance(item, basestring):
+                if len(elem):
+                    elem[-1].tail = (elem[-1].tail or "") + item
+                else:
+                    elem.text = (elem.text or "") + item
+            elif ET.iselement(item):
+                elem.append(item)
+            else:
+                raise TypeError("bad argument: %r" % item)
+        return elem
+
+    def __getattr__(self, tag):
+        return functools.partial(self, tag)
+
+# create factory object
+K = _K()
 
 def _wptstring(wpt):
   return "%f,%f,0" % (wpt.lon,wpt.lat)
@@ -115,7 +138,7 @@ class KMLWriter():
       pl.append(K.LineString(coordinates="\n".join(map(_wptstring,track.points()))))
     self.append(pl)
 
-  def route(self,rte):
+  def route(self,rte,**attr):
     if 'name' not in attr:
         attr['name'] = rte.name 
     if 'style' not in attr:
@@ -147,7 +170,7 @@ class KMLWriter():
       if createFolders:
         self.folder("Routes")
       for r in gpx.routes:
-        self.route(t)
+        self.route(r)
       if createFolders:
         self.parent()
 
@@ -166,7 +189,7 @@ def _indent(elem, level=0):
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
                     
-if __name__ == "__main__":
+def run():
   parser = argparse.ArgumentParser(description='Generate KML from a GPX file')
   parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
   parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file name of resulting KML file. If none is specified STDOUT will be used")
@@ -175,21 +198,21 @@ if __name__ == "__main__":
   parser.add_argument('-wpt-icon',dest='wpticon',default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
   parser.add_argument('-wpt-scale',dest='wptscale',type=float,default=1.0)
 
-# TODO: this should support a list of colors
-# which we rotate through 
-parser.add_argument('-track-color',dest='trkcolor',default='99ff7e00')
+  # TODO: this should support a list of colors
+  # which we rotate through 
+  parser.add_argument('-track-color',dest='trkcolor',default='99ff7e00')
   parser.add_argument('-track-width',dest='trkwidth',type=int,default=3)
 
-# TODO: this should support a list of colors
-# which we rotate through 
-parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
+  # TODO: this should support a list of colors
+  # which we rotate through 
+  parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
   parser.add_argument('-route-width',dest='routewidth',type=int,default=3)
   
   args = parser.parse_args()
   gpx = GPX()
   gpx.load(args.i)
   
-  kml = kml()
+  kml = K.kml(dict(xmlns='http://www.opengis.net/kml/2.2'))
   w= KMLWriter(kml)
   w.document(name=args.kmlname,description=args.kmldesc)
   # TODO: Region here - level of detail!
@@ -199,3 +222,7 @@ parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
   w.gpx(gpx)
   _indent(kml)
   ET.ElementTree(kml).write(args.o)
+  
+if __name__ == "__main__":
+  run()
+
