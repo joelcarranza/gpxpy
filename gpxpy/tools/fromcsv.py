@@ -33,7 +33,7 @@ def main(files,latField,lonField,nameField,typeField):
   return gpx
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description='Trim GPX file to time')
+  parser = argparse.ArgumentParser(description='Creates a GPX file from a CSV file')
   parser.add_argument('-i', metavar='file',nargs="+",type=argparse.FileType('rU'),default=sys.stdin)
   parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
   args = parser.parse_args()

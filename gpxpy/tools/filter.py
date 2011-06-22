@@ -29,6 +29,7 @@ def parseInt(s):
     return None
     
 def parseDate(s,begin=True):
+  # TODO should take dates that are output in info
   # need robust date parsing
   # http://www.logarithmic.net/pfh/blog/01162445830
   # or 
@@ -67,7 +68,8 @@ def filterByDate(gpx,t0,t1):
       return True
     gpx.filter(filter)
 
-if __name__ == "__main__":
+  
+def run():
   parser = argparse.ArgumentParser(description='Modify a GPX file to keep only what you want')
   parser.add_argument('-i', dest='infile',metavar='file',type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
   parser.add_argument('-o', dest='outfile',metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file location for output. If none is specified STDOUT will be use")
@@ -96,3 +98,6 @@ if __name__ == "__main__":
   if args.gpxdesc is not None:
     gpx.desc = args.gpxdesc
   gpx.write(args.outfile)
+  
+if __name__ == "__main__":
+  run()

@@ -92,6 +92,9 @@ class GPX:
     self.routes.append(r)
     return r
   
+  def join(self):
+    self.tracks = [Track(points=list(self.allpoints()))]
+  
   def allpoints(self):
     "Enumerate all waypoints in the GPX"
     for w in self.waypoints:
@@ -270,6 +273,22 @@ class Track:
     self._s.append(p)
     return p
   
+  def tracks_from_segments(self):
+    "Create a new set of tracks from the contained segments"
+    return [Track(segments=[s]) for s in self._s]
+  
+  def split(self,pred):
+    "Split track into multiple segments according to a predicate"
+    allsegs = []
+    for seg in self:
+      currseg = None
+      for wpt in seg:
+        if currseg is None or not pred(currseg[-1],wpt):
+          currseg = Path()
+          allsegs.append(currseg)
+        currseg.append(wpt)
+    self._s = allsegs
+  
   def join(self):
     "Join all segments together into a single segment"
     for s in self._s[1:]:
@@ -286,6 +305,12 @@ class Track:
   def ptAtTime(self,date):
     return min(self.points(),key=lambda p:abs(p.time-date))
   
+  def length(self):
+    l = 0
+    for s in self:
+      l += s.length()
+    return l
+
   def segments(self):
     return self._s
     

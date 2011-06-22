@@ -1,89 +1,32 @@
-GPXPY - a set of tools for dealing with GPX files
+Gpxpy is a python library for working with geographic data stored in [GPX][] files. It provides a pythonic interface to the track, route, and waypoint concepts defined in the [GPX schema][schema] along with a number of utility functions for common manipulations. It does not provide any functionality around getting data to/from your GPS device. You should use [gpsbabel][] for that. It does provide a number of command line utilities similar in scope to gpsbabel with a slightly more humane interface.
 
-Dependencies
-- argparse
-- timezone?
-- iso lib?
+[gpx]:http://www.topografix.com/gpx.asp
+[gpsbabel]:http://www.gpsbabel.org/
+[schema]:http://www.topografix.com/GPX/1/1/
 
-Goal is produce a basic library along with a number of simple command line utilities with the goal of creating "Maps" - i.e KML files or images or whatever. GPX files are the basis of the work, use gpsbable to get whatever into GPX format if you are feeling saucy.
+# dependencies #
 
-GPXPY
+Requires python 2.6 and the following additional libraries:
 
-Data model for GPX files
-Waypoint - location with optional time elevation components
-Path - ordered list of waypts
+- [argparse][]
+- [pytz][]
+- [isodate][]
 
-Paths represent both tracks and routes and waypoints represent all points in model
+[argparse]:http://pypi.python.org/pypi/argparse/1.2.1
+[pytz]: http://pytz.sourceforge.net/
+[isodate]:http://pypi.python.org/pypi/isodate/0.4.0
 
-GPxpy.py is library - if run standalone summarizes a passed in file. 
+# library #
 
-Utilities:
-Filter trackpoints by time
-Prune wpts/track/route by type,specific name
-Prune very short tracks
-Split according to time/distance
-Split around specified pt 
-Simplify , basic and topologically 
-Produce KML file
-Interpolate JMT track from partial path
-Elevation chart
-Location names using webservice (geocode)
+TODO:
 
-Google Maps 
-- no labelling, but you can produce labels by setting placemark icon to a image with drawn text, using google charts API (Dynamic Icons)
-http://code.google.com/apis/chart/docs/gallery/dynamic_icons.html
-Existing list of icons:
-http://www.visual-case.it/cgi-bin/vc/GMapsIcons.pl
-See also numbers:
-http://code.google.com/p/google-maps-icons/wiki/NumericIcons
-Days of the week:
-http://code.google.com/p/google-maps-icons/wiki/EventsIcons
+# scripts #
 
-Filter/Merging/Simplification
+gpxinfo - summarize info about a particular gpx file
 
+gpxmerge - reads multiple GPX files and outputs a single file. Removes duplicates. Tracks with multiple segments may be collapsed into a single segment with the -j option
 
+gpxfilter - restrict contents of a GPX file to a specific geographic area or time period. 
 
-KML Genereration
-KML Reference
-http://code.google.com/apis/kml/documentation/kmlreference.html#feature
+gpxsplit - break apart tracks according to time or distance
 
-General Command line utilities
-process -i in.gpx -o out.gpx 
-if -i or -o does not exist then read from stdin stdout
-Use argparse (included in python 2.7 but can download instead) (?)
-
-Implementation plan:
-merge
-  - track mode (single segment/single track/none)
-trim (by timestamp)
-  - perhaps we should call this filter (include positioning?)
-split (by time period days/hours)
-  split 1d -tz America/Pactific
-split (distance)
-supplement
-stops - generate stops
-
-Usage scenario and implications:
-Download a GPX track from GPS using GPSbabel.
-  Contains my track a waypoint of where i want to split the track in two
-  + old tracks in different places and a bunch of waypoints wherever
-Want to filter track by time
-  + got confused with time format forgot that I decided to use comma (should probably make these simple -from and -to arguments) better docs
-  - waypoints from Garmin have no time - need a better way to exclude nuke them as a first approximation
-  - better to exclude them by specifying a region of interest. 
-I've now got my track - label the GPX file with a good name/description/and metadata
-Now I've created a waypoint at peak - want to split the track into ascent and descent
-Now I want to pull in GNIS data for the area and annotate what was on the trail
-Now I want to produce KML file!
-
-
-TOD0:
-  - pretty print XML 
-  - technically XML schema has elements for route/track/wpt as sequence and thus they must be ordered - pah!
-  - outputted file not rendering in Google Earth
-  - implemented __getitem__ but not __setitem__ (OK)
-  - distance includes elevation
-
-v2
-  - parse using SAX events - allow parsing to provide filters which avoid construction of whole parts of tree altogether (only interested in tracks/wpt/routes etc) - Filter by date, etc... 
-  - write using direct XML writes

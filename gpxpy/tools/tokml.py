@@ -188,6 +188,18 @@ def _indent(elem, level=0):
     else:
         if level and (not elem.tail or not elem.tail.strip()):
             elem.tail = i
+
+def parse_color(colorstring):
+  "parse a string of format RRGGBB(AA)?"
+  if colorstring[0] == '#': colorstring = colorstring[1:]
+  if len(colorstring) != 6 and len(colorstring) != 8:
+    raise ValueError, "input #%s is not in #RRGGBB(AA)? format" % colorstring
+  r, g, b = colorstring[:2], colorstring[2:4], colorstring[4:6]
+  if len(colorstring) > 6:
+    a = colorstring[6:]
+  else:
+    a = 'ff'
+  return a+b+g+r
                     
 def run():
   parser = argparse.ArgumentParser(description='Generate KML from a GPX file')
@@ -195,17 +207,18 @@ def run():
   parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file name of resulting KML file. If none is specified STDOUT will be used")
   parser.add_argument('--kml-name',dest='kmlname')
   parser.add_argument('--kml-desc',dest='kmldesc')
+  # TODO: move these defaults to constants at top of file
   parser.add_argument('-wpt-icon',dest='wpticon',default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
   parser.add_argument('-wpt-scale',dest='wptscale',type=float,default=1.0)
 
   # TODO: this should support a list of colors
   # which we rotate through 
-  parser.add_argument('-track-color',dest='trkcolor',default='99ff7e00')
+  parser.add_argument('-track-color',dest='trkcolor',type=parse_color,default='#ff7e00')
   parser.add_argument('-track-width',dest='trkwidth',type=int,default=3)
 
   # TODO: this should support a list of colors
   # which we rotate through 
-  parser.add_argument('-route-color',dest='routecolor',default='99ff7e00')
+  parser.add_argument('-route-color',dest='routecolor',type=parse_color,default='#ff7e00')
   parser.add_argument('-route-width',dest='routewidth',type=int,default=3)
   
   args = parser.parse_args()

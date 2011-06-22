@@ -9,5 +9,5 @@ setup(name='gpxpy',
       author_email='joel.carranza@gmail.com',
       url='http://carranza-collective.com/joel/',
       packages=['gpxpy', 'gpxpy.tools'],
-      scripts=['scripts/gpxinfo','scripts/gpxmerge','scripts/gpx2kml']
+      scripts=['scripts/gpxinfo','scripts/gpxmerge','scripts/gpx2kml','scripts/gpxfilter','scripts/gpxsplit']
      )

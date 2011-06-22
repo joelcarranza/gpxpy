@@ -19,6 +19,49 @@ import pytz
 # byday really should be split - support
 # numerous options
 
+def seconds(dur):
+  return dur
+
+def timediff(wpt0,wpt1):
+  return seconds(wpt1.time - wpt0.time)
+  
+def dist(wp0,wpt1):
+  return wp10.dist(wpt1)
+
+def limit(func, max, wpt0, wpt1):
+  return lambda wpt0,wpt1: func(wpt0,wpt1) < max
+  
+class Accumulator(object):
+  def __init__(self,func,max):
+    self.func = func
+    self.max = max
+    self.total = total
+  
+  def __call__(self,wpt0,wpt1):
+    v = self.total + self.func(wp0,wp1)
+    if v < self.max:
+      self.total = v
+      return True
+    else:
+      self.total = 0
+      return False
+
+def accumulate(func, max, wpt0, wpt1):
+  return Accumulator(func,max)  
+
+def split_dist(max_dist):
+  return lambda a,b: limit(dist,max_dist,a,b)
+
+def split_travel_dist(max_dist):
+  return lambda a,b: accumulate(dist,max_dist,a,b)
+
+def split_time(max_time):
+  return lambda a,b: limit(timedif,seconds(max_time),a,b)
+
+def split_travel_dist(max_time):
+  return lambda a,b: accumulate(timediff,seconds(max_time),a,b)
+
+
 def binByDay(pts,tz):
   days = {}
   for p in pts:
