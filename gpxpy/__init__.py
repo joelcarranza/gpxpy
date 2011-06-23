@@ -12,9 +12,6 @@ import xml.etree.cElementTree as ElementTree
 from xml.etree.cElementTree import Element,SubElement
 import sys
 import os
-import pytz
-# this is going to fail on 2.5???
-import isodate
 import math
 import bisect
 from xmlutil import XAttr as xa

@@ -1,0 +1,5 @@
+#!python
+
+import gpxpy.tools.calendar
+
+gpxpy.tools.calendar.run()

@@ -11,6 +11,7 @@ Created by Joel Carranza on 2011-02-14.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.
 """
 
+import os.path
 import sys
 import argparse
 import re
@@ -53,13 +54,16 @@ def split(gpx,dt,tz):
     segments.extend(t)
   gpx.tracks = [Track(points=s) for s in segments]
   for t in gpx.tracks:
-    t.name = t[0][0].time.strftime("%D" if dt.days > 0 else "%D %H:%M")
+    t.name = t[0][0].time.strftime("%Y-%m-%d" if dt.days > 0 else "%Y-%m-%d %H:%M")
   return gpx
 
-if __name__ == "__main__":
+def run():
   parser = argparse.ArgumentParser(description='Write GPX files according to time')
-  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
-  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
+  parser.add_argument('-i',
+    metavar='file',type=argparse.FileType('r'),default=sys.stdin)
+  parser.add_argument('-o',metavar='file')
+  parser.add_argument('-d', metavar='dir')
+  
   parser.add_argument('-tz', type=pytz.timezone,default=pytz.utc)
   parser.add_argument('-t', type=parse_timedelta,default='1d')
   
@@ -67,4 +71,16 @@ if __name__ == "__main__":
   gpx = GPX()
   gpx.load(args.i)
   gpx = split(gpx,args.t,args.tz)
-  gpx.write(args.o)
+  if args.d:
+    for t in gpx.tracks:
+      gpxt = GPX()
+      gpxt.tracks.append(t)
+      gpxt.write(open(os.path.join(args.d,"%s.gpx" % t.name),'w'))      
+  elif args.o:
+    gpx.write(open(args.o,'w'))
+  else:
+    gpx.write(sys.stdout)
+    
+    
+if __name__ == "__main__":
+  run()
