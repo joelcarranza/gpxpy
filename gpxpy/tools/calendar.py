@@ -18,6 +18,7 @@ import re
 from datetime import timedelta
 from gpxpy import *
 import pytz
+import gpxpy.tools
 
 def round_cal(td,tz,time):
   time = tz.normalize(time.astimezone(tz))
@@ -31,7 +32,6 @@ def split_calendar(td,tz,wpt0,wpt1):
   return round_cal(td,tz,wpt0.time) == round_cal(td,tz,wpt1.time)
 
 def split(gpx,dt,tz):
-  gpx.join()
   for t in gpx.tracks:
     t.split(lambda wpt0,wpt1: split_calendar(dt,tz,wpt0,wpt1))
   segments = []

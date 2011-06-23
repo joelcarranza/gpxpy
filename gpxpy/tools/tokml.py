@@ -119,24 +119,48 @@ class KMLWriter():
       style.append(K.LabelStyle(color=color if labelColor else "ffffffff",scale=labelScale if labelScale else 1.0))
     self.append(style)
   
+  def track_path(self,pl,points):
+     if self.gxTracks:
+        trk = ET.SubElement(pl,'{http://www.google.com/kml/ext/2.2}Track')
+        for w in points:
+          ET.SubElement(trk,'when').text = isodate.datetime_isoformat(w.time)
+        for w in points:
+          ET.SubElement(trk,'{http://www.google.com/kml/ext/2.2}coord').text = " ".join(map(str,w.tuple3d()))
+     else:
+        pl.append(K.LineString(coordinates="\n".join(map(_wptstring,points))))
+        
   def track(self,track,**attr):
     if 'name' not in attr:
         attr['name'] = track.name 
     if 'style' not in attr:
         attr['style'] = "#gpx-track"
-    attr = self._fattr(**attr)
-    pl = K.Placemark(
-      **attr
-    )
-    if self.gxTracks:
-      trk = ET.SubElement(pl,'{http://www.google.com/kml/ext/2.2}Track')
-      for w in track.points():
-        ET.SubElement(trk,'when').text = isodate.datetime_isoformat(w.time)
-      for w in track.points():
-        ET.SubElement(trk,'{http://www.google.com/kml/ext/2.2}coord').text = " ".join(map(str,w.tuple3d()))
+    
+    if len(track) == 1:
+      # TODO: supply 
+      fattr = self._fattr(**attr)
+      pl = K.Placemark(
+        **fattr
+      )
+      self.track_path(pl,list(track.points()))
+      self.append(pl)
     else:
-      pl.append(K.LineString(coordinates="\n".join(map(_wptstring,track.points()))))
-    self.append(pl)
+      self.folder(track.name)
+      lastp = None
+      for s in track:
+        # TODO: number and name!
+        fattr = self._fattr(**attr)
+        pl = K.Placemark(
+          **fattr
+        )
+        self.track_path(pl,list(s))
+        self.append(pl)
+        if lastp:
+          pl = K.Placemark(styleUrl='#gpx-track-missing')
+          self.track_path(pl,[lastp,s[0]])
+          self.append(pl)
+        lastp = s[-1]
+        
+      self.parent()
 
   def route(self,rte,**attr):
     if 'name' not in attr:
@@ -231,9 +255,9 @@ def run():
   kml = K.kml(dict(xmlns='http://www.opengis.net/kml/2.2'))
   w= KMLWriter(kml)
   w.document(name=args.kmlname,description=args.kmldesc)
-  # TODO: Region here - level of detail!
   w.iconStyle("gpx-waypoint",args.wpticon,args.wptscale)
   w.lineStyle("gpx-track",args.trkcolor,args.trkwidth)
+  w.lineStyle("gpx-track-missing","cccccccc",args.trkwidth)
   w.lineStyle("gpx-route",args.routecolor,args.routewidth)
   w.gpx(gpx)
   _indent(kml)

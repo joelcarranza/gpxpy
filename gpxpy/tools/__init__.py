@@ -3,6 +3,7 @@ import sys
 import gpxpy
 from datetime import timedelta
 import pytz
+import re
 
 def inoutargs():
   parser = argparse.ArgumentParser(add_help=False)
