@@ -203,12 +203,15 @@ def parse_color(colorstring):
                     
 def run():
   parser = argparse.ArgumentParser(description='Generate KML from a GPX file')
-  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
-  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file name of resulting KML file. If none is specified STDOUT will be used")
+  parser.add_argument('-i', metavar='file',
+    type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
+  parser.add_argument('-o', metavar='file',
+    type=argparse.FileType('w'),default=sys.stdout,help="file name of resulting KML file. If none is specified STDOUT will be used")
   parser.add_argument('--kml-name',dest='kmlname')
   parser.add_argument('--kml-desc',dest='kmldesc')
   # TODO: move these defaults to constants at top of file
-  parser.add_argument('-wpt-icon',dest='wpticon',default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
+  parser.add_argument('-wpt-icon',dest='wpticon',
+    default='http://maps.google.com/mapfiles/ms/micons/ylw-pushpin.png')
   parser.add_argument('-wpt-scale',dest='wptscale',type=float,default=1.0)
 
   # TODO: this should support a list of colors

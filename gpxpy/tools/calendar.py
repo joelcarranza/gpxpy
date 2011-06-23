@@ -19,21 +19,6 @@ from datetime import timedelta
 from gpxpy import *
 import pytz
 
-def parse_timedelta(str):
-  m = re.match(r"(\d+)([dhms])",str)
-  if m:
-    n = int(m.group(1))
-    units = m.group(2)
-    if units == 'd':
-      return timedelta(days=n)
-    if units == 'h':
-      return timedelta(hours=n)
-    if units == 'm':
-      return timedelta(minutes=n)
-    if units == 's':
-      return timedelta(seconds=n)
-  raise Exception("Failed to parse %s" %str)
-  
 def round_cal(td,tz,time):
   time = tz.normalize(time.astimezone(tz))
   if td.days > 0:
@@ -64,8 +49,8 @@ def run():
   parser.add_argument('-o',metavar='file')
   parser.add_argument('-d', metavar='dir')
   
-  parser.add_argument('-tz', type=pytz.timezone,default=pytz.utc)
-  parser.add_argument('-t', type=parse_timedelta,default='1d')
+  parser.add_argument('-tz', type=gpxpy.tools.parse_timezone,default=pytz.utc)
+  parser.add_argument('-t', type=gpxpy.tools.parse_timedelta,default='1d')
   
   args = parser.parse_args()
   gpx = GPX()

@@ -15,6 +15,7 @@ import re
 from datetime import timedelta
 from gpxpy import *
 import pytz
+import gpxpy.tools
 
 units_conv = dict(m=1.0,mi=1609.344,ft=0.3048,km=1000)
 
@@ -26,20 +27,6 @@ def parse_dist(str):
     return n*units_conv[units]
   raise Exception("Failed to parse %s" %str)
     
-def parse_timedelta(str):
-  m = re.match(r"(\d+)([dhms])",str)
-  if m:
-    n = int(m.group(1))
-    units = m.group(2)
-    if units == 'd':
-      return timedelta(days=n)
-    if units == 'h':
-      return timedelta(hours=n)
-    if units == 'm':
-      return timedelta(minutes=n)
-    if units == 's':
-      return timedelta(seconds=n)
-  raise Exception("Failed to parse %s" %str)
   
 class DistanceSplitter(object):
   def __init__(self,max_dist):
@@ -86,14 +73,11 @@ def split(gpx,dist,dt):
   return gpx
 
 if __name__ == "__main__":
-  parser = argparse.ArgumentParser(description='Split GPX file according to time or distance')
-  parser.add_argument('-i', metavar='file',type=argparse.FileType('r'),default=sys.stdin)
-  parser.add_argument('-o', metavar='file',type=argparse.FileType('w'),default=sys.stdout)
-  parser.add_argument('-t', type=parse_timedelta)
+  parser = argparse.ArgumentParser(description='Split GPX file according to time or distance',parents=[gpxpy.tools.inoutargs()])
+  parser.add_argument('-t', type=gpxpy.tools.parse_timedelta)
   parser.add_argument('-d', type=parse_dist)
   
   args = parser.parse_args()
-  gpx = GPX()
-  gpx.load(args.i)
+  gpx = gpxpy.tools.gpxin(args)
   gpx = split(gpx,args.d,args.t)
-  gpx.write(args.o)
+  gpxpy.tools.gpxout(gpx,args)

@@ -18,6 +18,7 @@ import datetime
 from gpxpy import *
 import pytz
 from functools import partial
+import gpxpy.tools
 
 # TODO: this really needs support for selectively importing tracks/routes/waypoints
 # filter to within a geometry
@@ -62,17 +63,14 @@ def filter_by_date(p,t0,t1):
 
   
 def run():
-  parser = argparse.ArgumentParser(description='Modify a GPX file to keep only what you want')
-  parser.add_argument('-i', dest='infile',metavar='file',type=argparse.FileType('r'),default=sys.stdin,help="GPX file to process. If none is specified STDIN will be use")
-  parser.add_argument('-o', dest='outfile',metavar='file',type=argparse.FileType('w'),default=sys.stdout,help="file location for output. If none is specified STDOUT will be use")
-  parser.add_argument('-tz', type=pytz.timezone, help="Timezone of trim dates")
+  parser = argparse.ArgumentParser(description='Modify a GPX file to keep only what you want',parents=[gpxpy.tools.inoutargs()])
+  parser.add_argument('-tz', type=gpxpy.tools.parse_timezone, help="Timezone of trim dates")
   parser.add_argument('-from', dest='t0',metavar="datetime",type=partial(parse_date,begin=True),help="Start date. Of the form YYYY-MM-DD HH:MM")
   parser.add_argument('-to', dest='t1',metavar="datetime", type=partial(parse_date,begin=False),help="End date. Of the form YYYY-MM-DD HH:MM")
-  parser.add_argument('--gpx-name', dest='gpxname',metavar="name", help="Name for resulting GPX file")
-  parser.add_argument('--gpx-description', dest='gpxdesc',metavar="name", help="Description for resulting GPX file")
   args = parser.parse_args()
+
   # parse GPX file
-  gpx = parse(args.infile)
+  gpx = gpxpy.tools.gpxin(args)
   
   # time filter
   t0 = args.t0
@@ -82,14 +80,8 @@ def run():
       t0 = t0.replace(tzinfo=args.tz) if t0 else None
       t1 = t1.replace(tzinfo=args.tz) if t1 else None
   gpx.filter(lambda p: filter_by_date(p,t0,t1))
-    
-  # TODO: these options should be available in all tools!
-  # write it out!
-  if args.gpxname is not None:
-    gpx.name = args.gpxname
-  if args.gpxdesc is not None:
-    gpx.desc = args.gpxdesc
-  gpx.write(args.outfile)
+  # TODO: check empty before write!  
+  gpxpy.tools.gpxout(gpx,args)
   
 if __name__ == "__main__":
   run()
