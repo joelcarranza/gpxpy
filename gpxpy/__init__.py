@@ -74,24 +74,28 @@ class GPX:
     parser = GPXParser(self)
     parser.parse(src)
   
-  def newTrack(self,**kwargs):
+  def new_track(self,**kwargs):
     t = Track(**kwargs)
     self.tracks.append(t)
     return t
 
-  def newWaypoint(self,lat,lon,**kwargs):
+  def new_waypoint(self,lat,lon,**kwargs):
     w = Waypoint(lat,lon,**kwargs)
     self.waypoints.append(w)
     return w
     
-  def newRoute(self,**kwargs):
+  def new_route(self,**kwargs):
     r = Route(**kwargs)
     self.routes.append(r)
     return r
   
-  def join(self):
-    self.tracks = [Track(points=list(self.allpoints()))]
-  
+  def segments_to_tracks(self):
+    newt = []
+    for t in self.tracks:
+      for s in t:
+        newt.append(Track(points=s))
+    self.tracks = newt
+    
   def allpoints(self):
     "Enumerate all waypoints in the GPX"
     for w in self.waypoints:
@@ -103,13 +107,22 @@ class GPX:
       for w in t.points():
         yield w
   
-  def ptAtTime(self,dt):
+  def pt_at_time(self,dt):
     for t in self.tracks:
       for s in t:
         (mints,maxts) = s.timespan()
         if mints < dt and dt < maxts:
-          return s.ptAtTime(dt)
+          return s.pt_at_time(dt)
 
+  def join(self,maxdist=None,maxtime=None):
+    "Join all segments together into a single segment"
+    track = Track()
+    # collapse all segments into single track
+    for t in self.tracks:
+      track.extend(t)
+    # perform standard join
+    track.join(maxdist,maxtime)
+    self.tracks = [track]
     
   def filter(self,pred):
     self.waypoints[:] = filter(pred,self.waypoints)
@@ -149,7 +162,7 @@ class Path:
     "Return a list of waypoints in the path"
     return self._wpt
   
-  def newWaypoint(self,**kwargs):
+  def new_waypoint(self,**kwargs):
     w = Waypoint(**kwargs)
     self._wpt.append(w)
     return w
@@ -166,22 +179,10 @@ class Path:
     "Remove point from this path based on predicate"
     self._wpt = filter(pred,self._wpt)
     
-  # TODO: pt?
-  def ptAtTime(self,date):
+  def pt_at_time(self,date):
     dts = [p.time for p in self]
     ix = bisect.bisect_left(dts,date)
     return self[ix]
-
-  # TODO: this is deceptively named
-  def simplify(self,pred):
-    """Remove points form path based on predicate. Predicate
-    is passed two points, the current point and the last point
-    that passed the test. Only points that pass the test are returned""" 
-    np = self._wpt[0:1]
-    for p in self._wpt[1:]:
-      if pred(p,np[-1]):
-        np.append(p)
-    self._wpt = np
   
   def __iter__(self):
     return self._wpt.__iter__()
@@ -265,7 +266,7 @@ class Track:
      "return a bounding box which contains all waypoints on this path"
      return wpttimespan(list(self.points()))
   
-  def newSegment(self,**kwargs):
+  def new_segment(self,**kwargs):
     p = Path(**kwargs)
     self._s.append(p)
     return p
@@ -286,11 +287,19 @@ class Track:
         currseg.append(wpt)
     self._s = allsegs
   
-  def join(self):
+  def join(self,maxdist=None,maxtime=None):
     "Join all segments together into a single segment"
+    newseg = [self._s[0]]
     for s in self._s[1:]:
-      self._s[0].extend(s.points)
-    self._s[1:] = []
+      tail = newseg[-1][-1]
+      head = s[0] 
+      if maxdist is not None and tail.dist(head) > maxdist:
+        newseg.append(s)
+      elif maxtime is not None and (head.time-tail.time) > maxtime:
+        newseg.append(s)
+      else:        
+        newseg[-1].extend(s)
+    self._s = newseg
   
   def filter(self,pred):
     for s in self._s:
@@ -299,7 +308,7 @@ class Track:
     self._s[:] = filter(lambda s:len(s),self._s)
   
   
-  def ptAtTime(self,date):
+  def pt_at_time(self,date):
     return min(self.points(),key=lambda p:abs(p.time-date))
   
   def length(self):
@@ -321,12 +330,12 @@ class Track:
   
   def appendpt(self,wpt):
     if not self._s:
-      self.newSegment();
+      self.new_segment();
     self._s[-1].append(wpt)
 
   def extendpt(self,wpt):
     if not self._s:
-      self.newSegment();
+      self.new_segment();
     self._s[-1].extend(wpt)
   
   def __iter__(self):

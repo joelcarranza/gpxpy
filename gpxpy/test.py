@@ -62,12 +62,7 @@ class ParseTest(unittest.TestCase):
     self.assertEquals(len(seg),3)
     seg.filter(lambda x:False)
     self.assertEquals(len(seg),0)
-  
-  def testSegmentFilter(self):
-    seg = self.gpx.tracks[0][0]
-    seg.simplify(lambda a,b:math.fabs(a.ele-b.ele) > 1)
-    self.assertEquals(len(seg),2)
-  
+    
   def testTimestamp(self):
     seg = self.gpx.tracks[0][0]
     assert seg.timespan() is not None

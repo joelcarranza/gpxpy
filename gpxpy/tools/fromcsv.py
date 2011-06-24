@@ -24,7 +24,7 @@ def main(file,latField,lonField,nameField,typeField):
   for row in reader:
       lat = float(row[latField])
       lon = float(row[lonField])
-      w = gpx.newWaypoint(lat,lon)
+      w = gpx.waypoints.append(Waypoint(lat,lon))
       if nameField is not None:
         w.name = row[nameField]
       if typeField is not None:
