@@ -17,16 +17,6 @@ from gpxpy import *
 import pytz
 import gpxpy.tools
 
-units_conv = dict(m=1.0,mi=1609.344,ft=0.3048,km=1000)
-
-def parse_dist(str):
-  m = re.match(r"(\d+(?:\.\d+)?)([a-zA-Z]+)?",str)
-  if m:
-    n = float(m.group(1))
-    units = (m.group(2) or "m").lower()
-    return n*units_conv[units]
-  raise Exception("Failed to parse %s" %str)
-    
   
 class DistanceSplitter(object):
   def __init__(self,max_dist):
@@ -75,7 +65,7 @@ def split(gpx,dist,dt):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Split GPX file according to time or distance',parents=[gpxpy.tools.inoutargs()])
   parser.add_argument('-t', type=gpxpy.tools.parse_timedelta)
-  parser.add_argument('-d', type=parse_dist)
+  parser.add_argument('-d', type=gpxpy.tools.parse_dist)
   
   args = parser.parse_args()
   gpx = gpxpy.tools.gpxin(args)

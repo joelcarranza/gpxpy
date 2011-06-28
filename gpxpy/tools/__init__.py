@@ -17,6 +17,16 @@ def gpxin(args):
 def gpxout(gpx,args):
   gpx.write(args.o)
   
+units_conv = dict(m=1.0,mi=1609.344,ft=0.3048,km=1000)
+
+def parse_dist(str):
+  m = re.match(r"(\d+(?:\.\d+)?)([a-zA-Z]+)?",str)
+  if m:
+    n = float(m.group(1))
+    units = (m.group(2) or "m").lower()
+    return n*units_conv[units]
+  raise Exception("Failed to parse %s" %str)
+
 def parse_timezone(str):
   return pytz.timezone(str)
 
