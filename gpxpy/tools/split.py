@@ -71,8 +71,8 @@ def split(gpx,dist,dt):
   for t in gpx.tracks:
     t.name = str(t[0][0].time)
   return gpx
-
-if __name__ == "__main__":
+  
+def run():
   parser = argparse.ArgumentParser(description='Split GPX file according to time or distance',parents=[gpxpy.tools.inoutargs()])
   parser.add_argument('-t', type=gpxpy.tools.parse_timedelta)
   parser.add_argument('-d', type=parse_dist)
@@ -80,4 +80,7 @@ if __name__ == "__main__":
   args = parser.parse_args()
   gpx = gpxpy.tools.gpxin(args)
   gpx = split(gpx,args.d,args.t)
-  gpxpy.tools.gpxout(gpx,args)
+  gpxpy.tools.gpxout(gpx,args)  
+
+if __name__ == "__main__":
+  run()
