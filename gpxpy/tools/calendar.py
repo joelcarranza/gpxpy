@@ -46,6 +46,7 @@ def run():
   parser = argparse.ArgumentParser(description='Write GPX files according to time')
   parser.add_argument('-i',
     metavar='file',type=argparse.FileType('r'),default=sys.stdin)
+  # TODO: help strings
   parser.add_argument('-o',metavar='file')
   parser.add_argument('-d', metavar='dir')
   

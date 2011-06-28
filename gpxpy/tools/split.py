@@ -17,6 +17,7 @@ from gpxpy import *
 import pytz
 import gpxpy.tools
 
+# TODO: these can be removed!
 units_conv = dict(m=1.0,mi=1609.344,ft=0.3048,km=1000)
 
 def parse_dist(str):
@@ -57,6 +58,7 @@ class TimeSplitter(object):
       return False
 
 def split(gpx,dist,dt):
+  # TODO: join - reallY?
   gpx.join()
   if dist is not None:
     for t in gpx.tracks:
@@ -69,11 +71,13 @@ def split(gpx,dist,dt):
     segments.extend(t)
   gpx.tracks = [Track(points=s) for s in segments]
   for t in gpx.tracks:
+    # TODO: this should be parameterized
     t.name = str(t[0][0].time)
   return gpx
   
 def run():
   parser = argparse.ArgumentParser(description='Split GPX file according to time or distance',parents=[gpxpy.tools.inoutargs()])
+  # TODO these should have help strings
   parser.add_argument('-t', type=gpxpy.tools.parse_timedelta)
   parser.add_argument('-d', type=parse_dist)
   

@@ -7,6 +7,8 @@ Creates a GPX file from a CSV file
 
 Created by Joel Carranza on 2011-02-14.
 Copyright (c) 2011 __MyCompanyName__. All rights reserved.
+
+TODO: test me!
 """
 
 import sys

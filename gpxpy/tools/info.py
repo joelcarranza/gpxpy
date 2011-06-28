@@ -128,6 +128,7 @@ def name_filter(name):
   return lambda x: x.name == name
 
 def run():
+  # TODO: hmm. i really rather like the -i syntax better for consistency sake
   parser = argparse.ArgumentParser(description='Summary info from GPX file')
   parser.add_argument('infile', metavar='file',
                     help='gpx file')
