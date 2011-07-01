@@ -1,6 +1,7 @@
 *.pyc
-dist
-testenv
-*.kml
-*.gpx
-MANIFEST
+/dist
+/testenv
+/MANIFEST
+# exclude these at root path only because we have test data as gpx
+/*.kml
+/*.gpx

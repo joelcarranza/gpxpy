@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.0" creator="http://gpx.geotags.com/cgi-bin/gpx.cgi" xmlns="http://www.topografix.com/GPX/1/0">
+  <rte>
+    <name>Oregon to Utah</name>
+    <rtept lat="43.800780" lon="-120.555970">
+      <name>Head east on US-20 E/Central Oregon Hwy toward Frederick Butte Rd Continue to follow US-20 E; go 86.1mi</name>
+    </rtept>
+    <rtept lat="43.586040" lon="-119.054440">
+      <name>Turn left onto US-20 E/US-395 N/N Broadway Ave (signs for John Day Vale/Ontario) Continue to follow US-20 E; go 125mi</name>
+    </rtept>
+    <rtept lat="43.988710" lon="-117.005740">
+      <name>Turn right onto OR-201 S/US-20 E/US-26 E/Thunderegg Blvd Continue to follow US-20 E/US-26 E Entering Idaho; go 10.1mi</name>
+    </rtept>
+    <rtept lat="43.872940" lon="-116.955460">
+      <name>Turn right onto US-20 E/US-26 E/US-95 S Continue to follow US-20 E/US-26 E; go 20.5mi</name>
+    </rtept>
+    <rtept lat="43.690060" lon="-116.694060">
+      <name>Turn right to merge onto I-84 E/US-20 E/US-26 E/US-30 E toward Caldwell/Boise Continue to follow I-84 E Entering Utah; go 292mi</name>
+    </rtept>
+    <rtept lat="41.695520" lon="-112.174070">
+      <name>Merge onto I-15 S; go 120mi</name>
+    </rtept>
+    <rtept lat="40.136320" lon="-111.647030">
+      <name>Take exit 258 to merge onto US-6 E toward Price/Manti/US-89 E; go 5.3mi</name>
+    </rtept>
+    <rtept lat="40.082120" lon="-111.587430">
+      <name>Continue straight onto US-6 E/US-89 S Continue to follow US-6 E; go 63.0mi</name>
+    </rtept>
+    <rtept lat="39.589940" lon="-110.817120">
+      <name>Take exit 241 toward Castle Dale; go 0.3mi</name>
+    </rtept>
+    <rtept lat="39.587020" lon="-110.812510">
+      <name>Merge onto UT-10 S/S Carbon Ave Continue to follow UT-10 S; go 26.6mi</name>
+    </rtept>
+    <rtept lat="39.246770" lon="-110.987840">
+      <name>Slight right onto UT-29 W; go 3.9mi</name>
+    </rtept>
+    <rtept lat="39.232190" lon="-111.052720">
+      <name>Turn right onto UT-29 W/N Main St Continue to follow UT-29 W; go 7.7mi</name>
+    </rtept>
+    <rtept lat="39.276430" lon="-111.174770">
+      <name>Slight right; go 6.4mi</name>
+    </rtept>
+    <rtept lat="39.353080" lon="-111.171520">
+      <name>Sharp right; go 0.2mi</name>
+    </rtept>
+    <rtept lat="39.350770" lon="-111.170480">
+      <name>Turn left; go 3.6mi</name>
+    </rtept>
+    <rtept lat="39.339460" lon="-111.120960">
+      <name>Turn right; go 0.8mi</name>
+    </rtept>
+    <rtept lat="39.329350" lon="-111.119200">
+      <name>Turn left; go 1.0mi</name>
+    </rtept>
+    <rtept lat="39.320220" lon="-111.107770">
+      <name>Sharp left; go 1.2mi</name>
+    </rtept>
+    <rtept lat="39.326620" lon="-111.090030">
+      <name>Arrive at destination</name>
+    </rtept>
+  </rte>
+</gpx>
