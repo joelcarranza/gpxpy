@@ -6,11 +6,10 @@ import StringIO
 import math
 import gpxpy.tests
 
-class ParseTest(unittest.TestCase):
+class Track1Test(unittest.TestCase):
    
   def setUp(self):
     self.gpx = gpxpy.tests.load('track-1.gpx')
-    print self.gpx
   
   def testSimpleParse(self):
     self.assertEquals(len(self.gpx.tracks),1)
@@ -21,7 +20,7 @@ class ParseTest(unittest.TestCase):
     trk = self.gpx.tracks[0]
     self.assertEquals(len(trk),1)
     # points of track is not a list - it is a generator!
-    self.assertEquals(len([x for x in trk.points()]),3)
+    self.assertEquals(len(list(trk.points())),3)
 
   def testSegmentIter(self):
     seg = self.gpx.tracks[0][0]
