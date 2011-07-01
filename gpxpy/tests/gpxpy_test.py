@@ -6,6 +6,23 @@ import StringIO
 import math
 import gpxpy.tests
 
+class ParseTest(unittest.TestCase):
+  
+  def parseTrack1(self):
+    gpx = gpxpy.tests.load('track-1.gpx')
+    # parsed correctly
+    self.assertEquals(len(self.gpx.tracks),1)
+    self.assertEquals(len(self.gpx.waypoints),0)
+    self.assertEquals(len(self.gpx.routes),0)
+    trk = gpx.tracks[0]
+    self.assertEquals(trk.name,"Example GPX Document")
+    # 1 segment, 3 points
+    self.assertEquals(len(trk),1)
+    self.assertEquals(len(trk.points()),3)
+    self.assertEquals(len(trk[0]),3)
+    
+    
+
 class Track1Test(unittest.TestCase):
    
   def setUp(self):
