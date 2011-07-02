@@ -32,7 +32,6 @@ def parse_date(s,begin=True):
   
   m = re.match('(\d+)-(\d+)-(\d+)(?:T(\d+):(\d+)(?::(\d+))?)?',s)
   if m:
-    # TODO: lambda? instead of parseInt
     year,month,day,h,m,s = map(lambda s: int(s) if s else None,m.groups())
     if h is None:
       h = 0 if begin else 23

@@ -265,7 +265,6 @@ class Track:
   
   def points(self):
     "Returns an interator over all waypoints in track"
-    # TODO: can you itertools.chain here!
     for s in self._s:
       for p in s:
         yield p
@@ -412,7 +411,6 @@ class Waypoint:
     # interpolate! Possibly not that, instead its give me n points ever mile along line
   def dist(self,p,includeEle=False):
     "Distance between two waypoints using haversine"
-    # TODO: take into account of elevation!
     R = 6372800 # Radius of earth in meters
     lat1 = math.radians(self.lat)
     lon1 = math.radians(self.lon)
