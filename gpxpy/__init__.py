@@ -75,21 +75,27 @@ class GPX:
     parser.parse(src)
   
   def new_track(self,**kwargs):
+    "Create a new track and add it to this GPX"
     t = Track(**kwargs)
     self.tracks.append(t)
     return t
 
   def new_waypoint(self,lat,lon,**kwargs):
+    "Create a new waypoint and add it to this GPX"
     w = Waypoint(lat,lon,**kwargs)
     self.waypoints.append(w)
     return w
     
   def new_route(self,**kwargs):
+    "Create a new route and add it to this GPX"
     r = Route(**kwargs)
     self.routes.append(r)
     return r
   
   def segments_to_tracks(self):
+    """
+    Convert all multi-segment tracks into individual tracks
+    """
     newt = []
     for t in self.tracks:
       for s in t:
@@ -125,11 +131,16 @@ class GPX:
     self.tracks = [track]
     
   def filter(self,pred):
+    """
+    Apply a predicate to all waypoints in file. If the predicate
+    returns a False value then that waypoint is removed
+    Empty tracks and routes are pruned from file
+    """
     self.waypoints[:] = filter(pred,self.waypoints)
     for trk in self.tracks:
       trk.filter(pred)
     for r in self.routes:
-      t.filter(pred)
+      r.filter(pred)
     self.tracks[:] = filter(lambda t:len(t.segments()) > 0,self.tracks)
     self.routes[:] = filter(lambda t:len(r) > 0,self.routes)
 
@@ -138,7 +149,7 @@ class GPX:
     return wptbounds(list(self.allpoints()))
 
   def timespan(self):
-    "return a bounding box which contains all waypoints on this path"
+    "return a tuple of min/max time for all waypoints"
     return wpttimespan(list(self.allpoints()))
   
   def write(self,file):
@@ -163,6 +174,7 @@ class Path:
     return self._wpt
   
   def new_waypoint(self,**kwargs):
+    "Create a new waypoint and add it to this path"
     w = Waypoint(**kwargs)
     self._wpt.append(w)
     return w
@@ -198,7 +210,7 @@ class Path:
     return wptbounds(self._wpt)
   
   def timespan(self):
-    "return min max bounds of path"
+    "return a tuple of min/max time for all waypoints"
     return wpttimespan(self._wpt)
   
   def length(self):
@@ -263,10 +275,11 @@ class Track:
      return wptbounds(list(self.points()))
 
   def timespan(self):
-     "return a bounding box which contains all waypoints on this path"
+     "return a tuple of min/max time for all waypoints"
      return wpttimespan(list(self.points()))
   
   def new_segment(self,**kwargs):
+    "Create a new segment and add it to this track"
     p = Path(**kwargs)
     self._s.append(p)
     return p
