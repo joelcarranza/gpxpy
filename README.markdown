@@ -4,7 +4,11 @@ Gpxpy is a python library for working with geographic data stored in [GPX][] fil
 [gpsbabel]:http://www.gpsbabel.org/
 [schema]:http://www.topografix.com/GPX/1/1/
 
-# dependencies #
+This project is a work in progress,  it was born out of a frustration with working with the gpsbabel command line and as an introduction to Python. It has not been robustly tested or documented, but it works for me, and it may work for you too. If it doesn't, feel free to file bugs or submit patches. 
+
+Enjoy!
+
+# Dependencies 
 
 Requires python 2.6 and the following additional libraries:
 
@@ -16,11 +20,11 @@ Requires python 2.6 and the following additional libraries:
 [pytz]: http://pytz.sourceforge.net/
 [isodate]:http://pypi.python.org/pypi/isodate/0.4.0
 
-# library #
+# Library 
 
-TODO:
+Documentation to come. 
 
-# scripts #
+# Scripts 
 
 gpxinfo - summarize info about a particular gpx file
 
@@ -30,3 +34,10 @@ gpxfilter - restrict contents of a GPX file to a specific geographic area or tim
 
 gpxsplit - break apart tracks according to time or distance
 
+# License
+
+See LICENSE file.
+
+# Author
+
+Written by Joel Carranza
